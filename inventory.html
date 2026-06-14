@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inventory — Timescapes</title>
+<meta name="description" content="The full Timescapes lineup — Rolex, Omega, Panerai, Breitling. Filter by brand, open any piece to spin it in real light.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,500;1,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="icon" href="assets/logo.png">
+<link rel="stylesheet" href="styles.css">
+<script defer src="app.js"></script>
+</head>
+<body data-page="inventory">
+
+<header class="nav" data-nav></header>
+
+<main>
+  <section class="page-head">
+    <div class="container">
+      <span class="eyebrow" data-reveal>The Lineup</span>
+      <h1 class="display" data-reveal data-delay="1">Inventory</h1>
+      <p class="lead" data-reveal data-delay="2">Every piece currently in rotation. Open any watch to turn it in the light and study the detail up close.</p>
+    </div>
+  </section>
+
+  <section class="collection" style="padding-top:clamp(48px,6vw,80px)">
+    <div class="container">
+      <div class="inv-tools" data-reveal>
+        <div class="filters" id="filters"></div>
+        <button class="as-btn" id="openGallery">Open photo gallery ↗</button>
+      </div>
+      <div class="cards cards--3" id="inventoryGrid"></div>
+    </div>
+  </section>
+
+  <!-- comparison -->
+  <section class="compare">
+    <div class="container compare__wrap">
+      <div>
+        <span class="eyebrow" data-reveal>Same Reference</span>
+        <h2 class="display" data-reveal data-delay="1">Two straps,<br>one Panerai.</h2>
+        <p class="lead" data-reveal data-delay="2">The PAM00904 on warm suede or stealth textile. Drag the divider to see how the same case reads in two moods.</p>
+      </div>
+      <div class="cmp" id="cmp" data-reveal data-delay="1" role="group" aria-label="Drag to compare two straps">
+        <img class="bottom" src="assets/watches/watch-3/01.jpg" alt="Panerai PAM00904 on brown suede strap" loading="lazy">
+        <img class="top" src="assets/watches/watch-4/01.jpg" alt="Panerai PAM00904 on dark textile strap" loading="lazy">
+        <span class="cmp__label l">Suede</span>
+        <span class="cmp__label r">Textile</span>
+        <div class="cmp__divider"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- brand band -->
+  <section class="inv-banner" data-reveal aria-hidden="true">
+    <img src="assets/brand-banner.png" alt="">
+  </section>
+</main>
+
+<footer data-footer></footer>
+</body>
+</html>

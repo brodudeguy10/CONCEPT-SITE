@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Owner — Timescapes</title>
+<meta name="description" content="Anthony Savedra — the eye behind Timescapes. The bio, the numbers, the garage, and the brand film.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,500;1,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="icon" href="assets/logo.png">
+<link rel="stylesheet" href="styles.css">
+<script defer src="app.js"></script>
+</head>
+<body data-page="owner">
+
+<header class="nav" data-nav></header>
+
+<main>
+  <!-- owner hero -->
+  <section class="owner-hero">
+    <div class="owner-hero__bg">
+      <video src="assets/car.mp4" autoplay muted loop playsinline preload="auto" data-auto aria-hidden="true"></video>
+    </div>
+    <div class="container owner-hero__inner">
+      <span class="eyebrow" data-reveal>The Owner</span>
+      <h1 class="display" data-reveal data-delay="1">Anthony Savedra</h1>
+      <div class="handle" data-reveal data-delay="2">@ardevas09</div>
+    </div>
+  </section>
+
+  <!-- bio + stats -->
+  <section class="owner-bio">
+    <div class="container owner-bio__grid">
+      <div>
+        <span class="eyebrow" data-reveal>The Story</span>
+        <p data-reveal data-delay="1">Three years in, Timescapes has moved north of five thousand watches — and Anthony still studies each one like it's going on his own wrist. The same eye runs the garage: three cars, one bike, every one kept showroom-clean. Watches he'd actually wear, machines he actually drives.</p>
+        <div class="cta-row" style="margin-top:32px" data-reveal data-delay="2">
+          <a class="btn btn--ghost" href="https://www.instagram.com/ardevas09/" target="_blank" rel="noopener">See the garage on Instagram ↗</a>
+        </div>
+      </div>
+      <div class="stats" id="stats" data-reveal data-delay="1">
+        <div><b data-count="3">0</b><small>Years in business</small></div>
+        <div><b data-count="5000" data-suffix="+">0</b><small>Watches moved</small></div>
+        <div><b data-count="3">0</b><small>Cars in the garage</small></div>
+        <div><b data-count="1">0</b><small>Motorcycle</small></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- garage switcher -->
+  <section class="garage-sec">
+    <div class="container">
+      <div class="sec-head">
+        <div>
+          <span class="eyebrow" data-reveal>The Garage</span>
+          <h2 class="display" data-reveal data-delay="1">The other obsession.</h2>
+        </div>
+        <div class="meta" data-reveal data-delay="2">Click any clip to enlarge it — sound on.</div>
+      </div>
+      <div class="garage-wrap" data-reveal>
+        <div class="garage" id="garageStage">
+          <video id="garageVideo" muted loop playsinline preload="none" aria-hidden="true"></video>
+          <img id="garagePhoto" src="assets/lifestyle/drive.jpg" alt="Ford Raptor on a snowy mountain pass at sunset">
+          <span class="garage__tag" id="garageTag">Ferrari F8 · @ardevas09</span>
+          <button class="garage__zoom" id="garageZoom" aria-label="Enlarge this clip">⤢ Enlarge</button>
+        </div>
+        <div class="garage__chips" id="garageChips"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- brand film -->
+  <section class="film">
+    <div class="film__bg" id="filmBg">
+      <video src="assets/brand-film.mp4" muted loop playsinline preload="metadata" data-auto aria-hidden="true"></video>
+    </div>
+    <div class="container film__inner">
+      <span class="eyebrow center" data-reveal>The Brand Film</span>
+      <h2 class="display" data-reveal data-delay="1">Crafted to perform.<br><em class="accent">Built to impress.</em></h2>
+      <p data-reveal data-delay="2">Luxury timepieces and high-performance machines — the same obsession, different medium. Lights low, sound up, watch it run.</p>
+      <button class="film__play" id="filmPlay" data-reveal data-delay="3"><span class="pp">▶</span> Play with sound</button>
+    </div>
+  </section>
+</main>
+
+<footer data-footer></footer>
+</body>
+</html>
