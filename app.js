@@ -181,42 +181,100 @@ function shade(hex,amt){let c=hex.replace('#','');if(c.length===3)c=c.split('').
   r=clamp(r+amt,0,255);g=clamp(g+amt,0,255);b=clamp(b+amt,0,255);
   return '#'+[r,g,b].map(x=>x.toString(16).padStart(2,'0')).join('');}
 function watchSVG(o){
-  const C=200,R=190; let markers="";
-  for(let i=0;i<60;i++){const a=(i/60)*Math.PI*2,major=(i%5===0),r1=major?150:158,r2=168,w=major?5:1.6;
-    const x1=C+Math.sin(a)*r1,y1=C-Math.cos(a)*r1,x2=C+Math.sin(a)*r2,y2=C-Math.cos(a)*r2;
-    markers+=`<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="${major?o.accent:'#6b6357'}" stroke-width="${w}" stroke-linecap="round" opacity="${major?.95:.55}"/>`;}
+  const C=200,R=190, lume=o.lume||o.hands, id=o.id;
+  // sunburst dial grain (radial spokes that catch the sweeping light)
+  let sun="";
+  for(let i=0;i<140;i++){ const a=(i/140)*Math.PI*2, s=Math.sin(a), c=-Math.cos(a);
+    sun+=`<line x1="${(C+s*16).toFixed(1)}" y1="${(C+c*16).toFixed(1)}" x2="${(C+s*150).toFixed(1)}" y2="${(C+c*150).toFixed(1)}" stroke="${shade(o.dial,13)}" stroke-width=".7" opacity=".13"/>`; }
+  // printed minute track
+  let ticks="";
+  for(let i=0;i<60;i++){ const a=(i/60)*Math.PI*2, major=(i%5===0), r1=major?155:159, r2=167, w=major?2.4:1;
+    ticks+=`<line x1="${(C+Math.sin(a)*r1).toFixed(1)}" y1="${(C-Math.cos(a)*r1).toFixed(1)}" x2="${(C+Math.sin(a)*r2).toFixed(1)}" y2="${(C-Math.cos(a)*r2).toFixed(1)}" stroke="#b7b0a1" stroke-width="${w}" opacity="${major?.7:.42}"/>`; }
+  // fluted bezel (alternating bright/dark facets)
+  let flute="";
+  for(let i=0;i<88;i++){ const a=(i/88)*Math.PI*2, s=Math.sin(a), c=-Math.cos(a);
+    flute+=`<line x1="${(C+s*179).toFixed(1)}" y1="${(C+c*179).toFixed(1)}" x2="${(C+s*189).toFixed(1)}" y2="${(C+c*189).toFixed(1)}" stroke="${i%2?'#7a5d27':'#f3deab'}" stroke-width="2.4" opacity=".5"/>`; }
+  // applied steel hour indices with lume (skip 3 for the date, 12 a touch longer)
+  let idx="";
+  for(let h=0;h<12;h++){ if(h===3) continue;
+    const top=C-148, len=(h===0)?24:18, w=8, lw=4;
+    idx+=`<g transform="rotate(${h*30} ${C} ${C})">
+      <rect x="${C-w/2}" y="${top}" width="${w}" height="${len}" rx="2" fill="url(#gs-${id})" stroke="#26221c" stroke-width=".6"/>
+      <rect x="${C-lw/2}" y="${top+3.5}" width="${lw}" height="${len-7}" rx="${lw/2}" fill="${lume}" opacity=".8"/></g>`; }
   return `<svg viewBox="0 0 400 400" xmlns="${NS}">
     <defs>
-      <radialGradient id="gd-${o.id}" cx="38%" cy="30%" r="80%">
-        <stop offset="0%" stop-color="${shade(o.dial,18)}"/><stop offset="70%" stop-color="${o.dial}"/><stop offset="100%" stop-color="${shade(o.dial,-22)}"/></radialGradient>
-      <linearGradient id="gb-${o.id}" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0%" stop-color="#f1ddab"/><stop offset="35%" stop-color="#c9a24b"/><stop offset="65%" stop-color="#8a6a2c"/><stop offset="100%" stop-color="#e8d5a8"/></linearGradient>
+      <radialGradient id="gd-${id}" cx="40%" cy="32%" r="82%">
+        <stop offset="0%" stop-color="${shade(o.dial,20)}"/><stop offset="55%" stop-color="${o.dial}"/><stop offset="100%" stop-color="${shade(o.dial,-26)}"/></radialGradient>
+      <linearGradient id="gb-${id}" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#f4e2b3"/><stop offset="30%" stop-color="#c9a24b"/><stop offset="52%" stop-color="#86692c"/><stop offset="74%" stop-color="#e8d5a8"/><stop offset="100%" stop-color="#9c7a34"/></linearGradient>
+      <linearGradient id="gs-${id}" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#fcfcfe"/><stop offset="46%" stop-color="#cfd0d6"/><stop offset="100%" stop-color="#81838d"/></linearGradient>
+      <linearGradient id="gh-${id}" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="${shade(o.hands,-36)}"/><stop offset="42%" stop-color="${o.hands}"/><stop offset="52%" stop-color="#ffffff"/><stop offset="62%" stop-color="${o.hands}"/><stop offset="100%" stop-color="${shade(o.hands,-46)}"/></linearGradient>
+      <radialGradient id="gv-${id}" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="#000" stop-opacity="0"/><stop offset="74%" stop-color="#000" stop-opacity="0"/><stop offset="100%" stop-color="#000" stop-opacity=".4"/></radialGradient>
+      <radialGradient id="gsh-${id}" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#fff" stop-opacity=".9"/><stop offset="100%" stop-color="#fff" stop-opacity="0"/></radialGradient>
+      <radialGradient id="gar-${id}" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#74a6e6" stop-opacity=".28"/><stop offset="100%" stop-color="#74a6e6" stop-opacity="0"/></radialGradient>
+      <clipPath id="dc-${id}"><circle cx="${C}" cy="${C}" r="167"/></clipPath>
+      <clipPath id="cf-${id}"><circle cx="${C}" cy="${C}" r="189"/></clipPath>
     </defs>
-    <circle cx="${C}" cy="${C}" r="${R}" fill="url(#gb-${o.id})"/>
-    <circle cx="${C}" cy="${C}" r="174" fill="${shade(o.dial,-30)}"/>
-    <circle cx="${C}" cy="${C}" r="170" fill="url(#gd-${o.id})"/>
-    ${markers}
-    <rect x="262" y="${C-15}" width="34" height="30" rx="2" fill="${shade(o.dial,-40)}" stroke="${o.accent}" stroke-width="1.4"/>
-    <text x="279" y="${C+6}" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="20" fill="${o.hands}">${o.date}</text>
-    <text x="${C}" y="138" text-anchor="middle" font-family="Cormorant Garamond,Georgia,serif" font-size="24" font-weight="600" letter-spacing="1.5" fill="${o.accent}">TIMESCAPES</text>
-    <text x="${C}" y="262" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="10" letter-spacing="4" fill="#7a7264">AUTOMATIC</text>
+
+    <circle cx="${C}" cy="${C}" r="${R}" fill="url(#gb-${id})"/>
+    ${flute}
+    <circle cx="${C}" cy="${C}" r="178" fill="none" stroke="#000" stroke-opacity=".25" stroke-width="1.4"/>
+    <circle cx="${C}" cy="${C}" r="172" fill="${shade(o.dial,-34)}"/>
+    <circle cx="${C}" cy="${C}" r="167" fill="url(#gd-${id})"/>
+    <g clip-path="url(#dc-${id})">${sun}</g>
+    <circle cx="${C}" cy="${C}" r="167" fill="url(#gv-${id})"/>
+
+    ${ticks}
+    ${idx}
+
+    <g clip-path="url(#dc-${id})" pointer-events="none"><ellipse cx="${C-58}" cy="${C+64}" rx="92" ry="64" fill="url(#gar-${id})"/></g>
+
+    <rect x="259" y="${C-16}" width="38" height="32" rx="2.5" fill="${shade(o.dial,-54)}" stroke="url(#gs-${id})" stroke-width="1.6"/>
+    <text x="278" y="${C+6}" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="19" font-weight="600" fill="#efe9dd">${o.date}</text>
+
+    <text x="${C}" y="130" text-anchor="middle" font-family="Cormorant Garamond,Georgia,serif" font-size="23" font-weight="600" letter-spacing="2" fill="${o.accent}">TIMESCAPES</text>
+    <text x="${C}" y="147" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="7.5" letter-spacing="3.5" fill="#8f8777">AUTOMATIC</text>
+
+    <g clip-path="url(#dc-${id})" pointer-events="none">
+      <ellipse cx="${C-52}" cy="${C-58}" rx="150" ry="118" fill="#ffffff" opacity=".05"/>
+      <path d="M ${C-150},${C-10} Q ${C-40},${C-150} ${C+140},${C-118}" stroke="#ffffff" stroke-opacity=".07" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+    </g>
+    <g clip-path="url(#cf-${id})" pointer-events="none"><g class="dial-sheen">
+      <ellipse cx="${C}" cy="${C-120}" rx="124" ry="54" fill="url(#gsh-${id})" opacity=".10"/>
+      <ellipse cx="${C}" cy="${C+120}" rx="124" ry="54" fill="url(#gsh-${id})" opacity=".05"/>
+    </g></g>
+
     <g data-h></g><g data-m></g><g data-s></g>
-    <circle cx="${C}" cy="${C}" r="9" fill="${o.accent}"/>
-    <circle cx="${C}" cy="${C}" r="3.5" fill="${shade(o.dial,-30)}"/>
+
+    <circle cx="${C}" cy="${C}" r="7.5" fill="url(#gs-${id})" stroke="#26221c" stroke-width=".6"/>
+    <circle cx="${C}" cy="${C}" r="2.6" fill="${shade(o.dial,-40)}"/>
   </svg>`;
 }
 function buildLiveWatch(faceEl, chipEl, toggleEl){
   if(!faceEl) return;
-  const PAL={ day:{dial:'#10100f',accent:'#c9a24b',hands:'#f2ede3',sec:'#c98a4b'},
-              lume:{dial:'#0b1410',accent:'#7ee0a8',hands:'#bdeccf',sec:'#7ee0a8'} };
+  const PAL={ day:{dial:'#0e0d0b',accent:'#c9a24b',hands:'#e9e6dc',sec:'#c98a4b',lume:'#d2c39c'},
+              lume:{dial:'#091310',accent:'#79e6a6',hands:'#cdeede',sec:'#79e6a6',lume:'#8af5bb'} };
   let mode='day',hH,mH,sH; const C=200;
   function render(){
     const p=PAL[mode];
-    faceEl.innerHTML=watchSVG({id:'live',dial:p.dial,accent:p.accent,hands:p.hands,date:new Date().getDate(),sec:p.sec});
+    faceEl.innerHTML=watchSVG({id:'live',dial:p.dial,accent:p.accent,hands:p.hands,date:new Date().getDate(),sec:p.sec,lume:p.lume});
     hH=$('[data-h]',faceEl);mH=$('[data-m]',faceEl);sH=$('[data-s]',faceEl);
-    hH.innerHTML=`<rect x="${C-4.5}" y="${C-95}" width="9" height="112" rx="4.5" fill="${p.hands}"/>`;
-    mH.innerHTML=`<rect x="${C-3}" y="${C-135}" width="6" height="152" rx="3" fill="${p.hands}"/>`;
-    sH.innerHTML=`<rect x="${C-1.2}" y="${C-150}" width="2.4" height="185" rx="1.2" fill="${p.sec}"/><circle cx="${C}" cy="${C+38}" r="6" fill="${p.sec}"/>`;
+    // hands: faceted batons with lume + a baked soft shadow (cheaper than a per-frame filter)
+    const hp=`M ${C},${C-92} L ${C+5.5},${C-77} L ${C+4},${C+22} L ${C-4},${C+22} L ${C-5.5},${C-77} Z`;
+    const mp=`M ${C},${C-134} L ${C+4.5},${C-118} L ${C+3},${C+24} L ${C-3},${C+24} L ${C-4.5},${C-118} Z`;
+    hH.innerHTML=`<path d="${hp}" transform="translate(1.2,2.4)" fill="#000" opacity=".26"/>`
+      +`<path d="${hp}" fill="url(#gh-live)" stroke="#171410" stroke-width=".5"/>`
+      +`<rect x="${C-3.5}" y="${C-72}" width="7" height="70" rx="3.5" fill="${p.lume}" opacity=".9"/>`;
+    mH.innerHTML=`<path d="${mp}" transform="translate(1.2,2.4)" fill="#000" opacity=".26"/>`
+      +`<path d="${mp}" fill="url(#gh-live)" stroke="#171410" stroke-width=".5"/>`
+      +`<rect x="${C-3.5}" y="${C-112}" width="7" height="110" rx="3.5" fill="${p.lume}" opacity=".9"/>`;
+    sH.innerHTML=`<g transform="translate(1,2.2)" opacity=".22" fill="#000"><rect x="${C-1.2}" y="${C-142}" width="2.4" height="180" rx="1.2"/><circle cx="${C}" cy="${C+36}" r="7"/></g>`
+      +`<rect x="${C-1.2}" y="${C-142}" width="2.4" height="180" rx="1.2" fill="${p.sec}"/>`
+      +`<circle cx="${C}" cy="${C-116}" r="5" fill="${p.sec}"/><circle cx="${C}" cy="${C-116}" r="2.3" fill="${p.lume}"/>`
+      +`<circle cx="${C}" cy="${C+36}" r="7" fill="${p.sec}"/>`;
   }
   render();
   function tick(){
