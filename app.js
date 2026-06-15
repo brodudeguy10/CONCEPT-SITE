@@ -18,18 +18,30 @@ const IG_BRAND="https://www.instagram.com/timescapesllc/";
 const IG_OWNER="https://www.instagram.com/ardevas09/";
 
 const WATCHES = [
-  {id:'gmt',  folder:'watch-1', frames:8,  brand:'Rolex',    name:'GMT-Master II “Rootbeer”', ref:'126715CHNR', spec:'Everose Gold · GMT · Cerachrom', price:38200, badge:'In rotation'},
-  {id:'sea',  folder:'watch-2', frames:11, brand:'Omega',    name:'Seamaster Diver 300M',     ref:'210.62.42', spec:'Titanium · Sedna Gold · Green', price:9650,  badge:'In rotation'},
-  {id:'p904b',folder:'watch-3', frames:6,  brand:'Panerai',  name:'Luminor Due 42mm',         ref:'PAM00904',  spec:'Steel · Sunburst · Suede',     price:6400,  badge:'In rotation'},
-  {id:'p904t',folder:'watch-4', frames:6,  brand:'Panerai',  name:'Luminor Due · Textile',    ref:'PAM00904',  spec:'Steel · Sunburst · Textile',   price:6400,  badge:'In rotation', card:false},
-  {id:'p1218',folder:'watch-5', frames:8,  brand:'Panerai',  name:'Luminor Chrono 44mm',      ref:'PAM01218',  spec:'Steel · White · Blue Rubber',  price:8900,  badge:'In rotation'},
-  {id:'navi', folder:'watch-6', frames:6,  brand:'Breitling',name:'Navitimer B01 Chrono 43',  ref:'UB0121',    spec:'Steel · Two-Tone · Slide Rule', price:7600,  badge:'Just in'},
-  {id:'007',  folder:'watch-7', frames:8,  brand:'Omega',    name:'Seamaster 300M · 007',     ref:'210.92.42', spec:'Ceramic · “No Time to Die”',    price:11800, badge:'Just in'},
+  /* ---- currently in stock (real eBay item links) ---- */
+  {id:'speedy', folder:'watch-8', frames:8,  brand:'Omega',    name:'Speedmaster 38mm “Milano Cortina”', ref:'522.30.38.50.04.001', spec:'Steel · Chronograph · Cortina 2026', badge:'Just in', cover:7,
+    ebay:'https://www.ebay.com/itm/198384693306?itmmeta=01KV4A7GR5NZSC59KAJ2Q6X5QM&hash=item2e30a6303a:g:taEAAeSwQdhqF5ns'},
+  {id:'premier',folder:'watch-9', frames:8,  brand:'Breitling',name:'Premier B01 Chronograph 42',        ref:'AB0145221B1A1',       spec:'Steel · Black Dial · Box & Papers', badge:'Just in', cover:7,
+    ebay:'https://www.ebay.com/itm/198384371067?epid=26059670774&itmmeta=01KV4A7GR5X3268ZN1BADP8CB9&hash=item2e30a1457b:g:zisAAeSw8iBqF2fo'},
+  {id:'avi',    folder:'watch-10',frames:11, brand:'Breitling',name:'Super AVI B04 46 “Corsair”',        ref:'AB04451A1C1X1',       spec:'Steel · Blue Dial · Chrono GMT', badge:'Just in', cover:5,
+    ebay:'https://www.ebay.com/itm/198384399349?itmmeta=01KV4A7GR5A1YQZFKWHXN2FAQN&hash=item2e30a1b3f5:g:jXYAAeSwb-JqF20h'},
+  /* ---- sold (kept up as the archive / the flex) ---- */
+  {id:'gmt',  folder:'watch-1', frames:8,  brand:'Rolex',    name:'GMT-Master II “Rootbeer”', ref:'126715CHNR', spec:'Everose Gold · GMT · Cerachrom', badge:'Sold', sold:true},
+  {id:'sea',  folder:'watch-2', frames:11, brand:'Omega',    name:'Seamaster Diver 300M',     ref:'210.62.42', spec:'Titanium · Sedna Gold · Green', badge:'Sold', sold:true},
+  {id:'p904b',folder:'watch-3', frames:6,  brand:'Panerai',  name:'Luminor Due 42mm',         ref:'PAM00904',  spec:'Steel · Sunburst · Suede',     badge:'Sold', sold:true},
+  {id:'p904t',folder:'watch-4', frames:6,  brand:'Panerai',  name:'Luminor Due · Textile',    ref:'PAM00904',  spec:'Steel · Sunburst · Textile',   badge:'Sold', sold:true, card:false},
+  {id:'p1218',folder:'watch-5', frames:8,  brand:'Panerai',  name:'Luminor Chrono 44mm',      ref:'PAM01218',  spec:'Steel · White · Blue Rubber',  badge:'Sold', sold:true},
+  {id:'navi', folder:'watch-6', frames:6,  brand:'Breitling',name:'Navitimer B01 Chrono 43',  ref:'UB0121',    spec:'Steel · Two-Tone · Slide Rule', badge:'Sold', sold:true},
+  {id:'007',  folder:'watch-7', frames:8,  brand:'Omega',    name:'Seamaster 300M · 007',     ref:'210.92.42', spec:'Ceramic · “No Time to Die”',    badge:'Sold', sold:true},
 ];
 const framePath=(w,i)=>`assets/watches/${w.folder}/${String(i).padStart(2,'0')}.jpg`;
 const fmt=n=>'$'+n.toLocaleString('en-US');
 const byId=id=>WATCHES.find(w=>w.id===id);
 const cardWatches=()=>WATCHES.filter(w=>w.card!==false);
+const inStock=()=>WATCHES.filter(w=>!w.sold && w.card!==false);
+const soldList=()=>WATCHES.filter(w=>w.sold && w.card!==false);
+const ourWatches=()=>[...inStock(), ...soldList()];   // in-stock first, then sold
+const coverPath=w=>framePath(w, w.cover||1);
 function feedImages(){ const out=[]; WATCHES.forEach(w=>{ for(let i=1;i<=w.frames;i++) out.push({w,src:framePath(w,i)}); }); return out; }
 const ALLFEED=feedImages();
 
@@ -268,12 +280,13 @@ function ensureMediaLightbox(){
   if(MLB) return;
   const el=document.createElement('div');
   el.className='mlb'; el.id='mediaLB'; el.setAttribute('role','dialog'); el.setAttribute('aria-modal','true'); el.setAttribute('aria-label','Enlarged media');
-  el.innerHTML=`<button class="mlb__close" id="mlbClose" aria-label="Close">✕</button>
+  el.innerHTML=`<div class="mlb__ambient" aria-hidden="true"><video id="mlbAmbVideo" muted loop playsinline></video><img id="mlbAmbImg" alt=""></div>
+    <button class="mlb__close" id="mlbClose" aria-label="Close">✕</button>
     <div class="mlb__stage"><video id="mlbVideo" loop playsinline controls></video><img id="mlbImg" alt=""></div>
     <div class="mlb__cap" id="mlbCap"></div>`;
   document.body.appendChild(el);
-  MLB={el,vid:$('#mlbVideo',el),img:$('#mlbImg',el),cap:$('#mlbCap',el)};
-  function close(){ el.classList.remove('open'); MLB.vid.pause(); document.body.style.overflow=''; }
+  MLB={el,vid:$('#mlbVideo',el),img:$('#mlbImg',el),cap:$('#mlbCap',el),ambVid:$('#mlbAmbVideo',el),ambImg:$('#mlbAmbImg',el)};
+  function close(){ el.classList.remove('open'); MLB.vid.pause(); if(MLB.ambVid) MLB.ambVid.pause(); document.body.style.overflow=''; }
   MLB._close=close;
   $('#mlbClose',el).addEventListener('click',close);
   el.addEventListener('click',e=>{ if(e.target===el) close(); });
@@ -282,9 +295,16 @@ function ensureMediaLightbox(){
 function mediaOpen(o){
   ensureMediaLightbox();
   MLB.cap.textContent=o.cap||'';
-  if(o.type==='video'){ MLB.img.classList.remove('show'); MLB.vid.src=o.src; MLB.vid.classList.add('show'); MLB.vid.muted=false;
-    const p=MLB.vid.play(); if(p&&p.catch)p.catch(()=>{ MLB.vid.muted=true; MLB.vid.play().catch(()=>{}); }); }
-  else { MLB.vid.classList.remove('show'); MLB.vid.pause(); MLB.vid.removeAttribute('src'); MLB.img.src=o.src; MLB.img.classList.add('show'); }
+  if(o.type==='video'){
+    MLB.img.classList.remove('show'); MLB.vid.src=o.src; MLB.vid.classList.add('show'); MLB.vid.muted=false;
+    const p=MLB.vid.play(); if(p&&p.catch)p.catch(()=>{ MLB.vid.muted=true; MLB.vid.play().catch(()=>{}); });
+    MLB.ambImg.classList.remove('show'); MLB.ambImg.removeAttribute('src');
+    if(!REDUCE){ MLB.ambVid.src=o.src; MLB.ambVid.classList.add('show'); MLB.ambVid.play().catch(()=>{}); } else { MLB.ambVid.classList.remove('show'); }
+  } else {
+    MLB.vid.classList.remove('show'); MLB.vid.pause(); MLB.vid.removeAttribute('src'); MLB.img.src=o.src; MLB.img.classList.add('show');
+    MLB.ambVid.classList.remove('show'); MLB.ambVid.pause(); MLB.ambVid.removeAttribute('src');
+    MLB.ambImg.src=o.src; MLB.ambImg.classList.add('show');
+  }
   MLB.el.classList.add('open'); document.body.style.overflow='hidden';
 }
 
@@ -311,6 +331,7 @@ function initGarage(){
     {label:'F8 · Drive',   tag:'Ferrari F8 · @ardevas09',   type:'video', src:'assets/garage/g3.mp4'},
     {label:'F8 · Rollers', tag:'Ferrari F8 · rolling shot', type:'video', src:'assets/garage/g1.mp4'},
     {label:'F8 · Detail',  tag:'Ferrari F8 · up close',     type:'video', src:'assets/garage/g2.mp4'},
+    {label:'On the move',  tag:'Out driving · @ardevas09',  type:'video', src:'assets/garage/g4.mp4'},
     {label:'The Raptor',   tag:'Ford Raptor · 1,000 miles', type:'photo', src:'assets/lifestyle/drive.jpg'},
   ];
   let cur=0;
@@ -350,7 +371,7 @@ function navHTML(page){
     <a href="index.html" class="brand" aria-label="Timescapes home"><img src="assets/logo.png" alt="Timescapes">Timescapes</a>
     <nav class="nav__links" id="navLinks" aria-label="Primary">
       ${a('index.html','Home','home')}
-      ${a('inventory.html','Inventory','inventory')}
+      ${a('inventory.html','Our Watches','inventory')}
       ${a('owner.html','The Owner','owner')}
     </nav>
     <div class="nav__cta">
@@ -364,11 +385,11 @@ function footerHTML(){
     <div class="foot__row">
       <div class="foot__brand">
         <div class="fb-top"><img src="assets/logo.png" alt="Timescapes">Timescapes</div>
-        <p>Luxury timepieces, kept immaculate and priced to move. A rotating lineup — shown big, shot in real light, live on eBay and Instagram.</p>
+        <p>Watches looked after and priced fair. A few good ones at a time, shot in real light, live on eBay and Instagram.</p>
       </div>
       <div class="foot__links">
         <div class="foot__col"><h5>Explore</h5>
-          <a href="index.html">Home</a><a href="inventory.html">Inventory</a><a href="owner.html">The Owner</a></div>
+          <a href="index.html">Home</a><a href="inventory.html">Our Watches</a><a href="owner.html">The Owner</a></div>
         <div class="foot__col"><h5>Find us</h5>
           <a href="${EBAY}" target="_blank" rel="noopener">eBay Store</a>
           <a href="${IG_BRAND}" target="_blank" rel="noopener">@timescapesllc</a>
@@ -393,10 +414,12 @@ function renderChrome(page){
 
 /* ---------------- card markup (shared) ---------------- */
 function cardHTML(w){
-  return `<a class="card" href="watch.html?id=${w.id}" data-reveal data-brand="${w.brand}" data-badge="${w.badge}" aria-label="${w.brand} ${w.name}">
+  const badge = w.sold ? '<span class="card__badge sold">Sold</span>'
+                       : (w.badge==='Just in' ? '<span class="card__badge">Just in</span>' : '');
+  return `<a class="card${w.sold?' is-sold':''}" href="watch.html?id=${w.id}" data-reveal data-brand="${w.brand}" data-status="${w.sold?'sold':'stock'}" aria-label="${w.brand} ${w.name}${w.sold?' (sold)':''}">
     <div class="card__media">
-      <img src="${framePath(w,1)}" alt="${w.brand} ${w.name}" loading="lazy">
-      ${w.badge==='Just in'?'<span class="card__badge">Just in</span>':''}
+      <img src="${coverPath(w)}" alt="${w.brand} ${w.name}" loading="lazy">
+      ${badge}
     </div>
     <div class="card__info">
       <div class="card__brand">${w.brand} · ${w.ref}</div>
@@ -412,30 +435,35 @@ function cardHTML(w){
 function initHome(){
   buildLiveWatch($('#liveWatch'), $('#liveTime'), $('#lumeToggle'));
   const feat=$('#featuredCards');
-  if(feat){ feat.innerHTML=cardWatches().slice(0,4).map(cardHTML).join(''); observeReveals(feat); }
+  if(feat){ feat.innerHTML=inStock().map(cardHTML).join(''); observeReveals(feat); }
   const fg=$('#feedGrid');
   if(fg){
-    const picks=['gmt','sea','navi','007'].map(byId).filter(Boolean);
-    fg.innerHTML=picks.map(w=>`<div class="feed__tile" data-src="${framePath(w,1)}"><img src="${framePath(w,1)}" alt="${w.brand} ${w.name}" loading="lazy"></div>`).join('');
+    const picks=['speedy','avi','premier','gmt'].map(byId).filter(Boolean);
+    fg.innerHTML=picks.map(w=>`<div class="feed__tile" data-src="${coverPath(w)}"><img src="${coverPath(w)}" alt="${w.brand} ${w.name}" loading="lazy"></div>`).join('');
     $$('.feed__tile',fg).forEach(t=>t.addEventListener('click',()=>lbOpen('all',t.dataset.src)));
   }
+  initStats($('#homeStats'));
 }
 function initInventory(){
   const grid=$('#inventoryGrid'); if(!grid) return;
-  const ws=cardWatches();
+  const ws=ourWatches();
   grid.innerHTML=ws.map(cardHTML).join(''); observeReveals(grid);
   const fbar=$('#filters');
   if(fbar){
     const brands=[...new Set(ws.map(w=>w.brand))];
-    const chips=[{k:'all',l:'All'},{k:'just',l:'Just in'}].concat(brands.map(b=>({k:'brand:'+b,l:b})));
+    const chips=[{k:'all',l:'All'},{k:'stock',l:'In stock'},{k:'sold',l:'Sold'}].concat(brands.map(b=>({k:'brand:'+b,l:b})));
     fbar.innerHTML=chips.map((c,i)=>`<button class="filter${i===0?' active':''}" data-k="${c.k}">${c.l}</button>`).join('');
     $$('.filter',fbar).forEach(btn=>btn.addEventListener('click',()=>{
       $$('.filter',fbar).forEach(b=>b.classList.toggle('active',b===btn));
       const k=btn.dataset.k;
-      $$('.card',grid).forEach(card=>{ let show=true;
-        if(k==='just') show=card.dataset.badge==='Just in';
+      const applyHides=()=>{ $$('.card',grid).forEach(card=>{ let show=true;
+        if(k==='stock') show=card.dataset.status==='stock';
+        else if(k==='sold') show=card.dataset.status==='sold';
         else if(k.indexOf('brand:')===0) show=card.dataset.brand===k.slice(6);
-        card.classList.toggle('hide',!show); });
+        card.classList.toggle('hide',!show); }); };
+      if(REDUCE){ applyHides(); return; }
+      grid.style.opacity='0';
+      setTimeout(()=>{ applyHides(); grid.style.opacity='1'; }, 220);
     }));
   }
   const cmp=$('#cmp'); if(cmp) initComparison(cmp);
@@ -446,27 +474,29 @@ function initWatch(){
   const id=new URLSearchParams(location.search).get('id');
   const w=byId(id)||WATCHES[0];
   document.title=`${w.brand} ${w.name} — Timescapes`;
-  const more=cardWatches().filter(x=>x.id!==w.id).slice(0,3);
+  const more=ourWatches().filter(x=>x.id!==w.id).slice(0,3);
+  const soldTag = w.sold ? '<span class="sold-tag">Sold</span>' : '';
+  const availDD = w.sold ? '<dd class="dd-sold">Sold</dd>' : '<dd class="dd-stock">Available now</dd>';
+  const cta = w.sold
+    ? `<a class="btn btn--ghost" href="inventory.html">See what's in stock →</a><button class="btn btn--ghost" id="openGallery">View gallery</button>`
+    : `<a class="btn btn--gold" href="${w.ebay}" target="_blank" rel="noopener">See it on eBay ↗</a><button class="btn btn--ghost" id="openGallery">View gallery</button>`;
   root.innerHTML=`
-  <section class="detail"><div class="container">
-    <a class="detail__back" href="inventory.html">← Back to inventory</a>
+  <section class="detail${w.sold?' detail--sold':''}"><div class="container">
+    <a class="detail__back" href="inventory.html">← Back to all watches</a>
     <div class="detail__grid">
       <div class="detail__spin" data-reveal><div class="spin" id="detailSpin"></div></div>
       <div class="detail__info" data-reveal data-delay="1">
-        <div class="detail__brand">${w.brand} · Ref. ${w.ref}</div>
+        <div class="detail__brand">${w.brand} · Ref. ${w.ref} ${soldTag}</div>
         <h1 class="detail__name">${w.name}</h1>
-        <p class="detail__spec-line">${w.spec}. Drag the viewer to turn it in the light; hover to loupe in on the detail.</p>
+        ${w.sold?'<p class="sold-note">This one\'s already gone, but we keep it up. What\'s actually available is in the lineup below.</p>':''}
+        <p class="detail__spec-line">${w.spec}. Grab it and drag to spin it around, or hover to zoom right in.</p>
         <dl class="specs">
           <div><dt>Brand</dt><dd>${w.brand}</dd></div>
           <div><dt>Reference</dt><dd>${w.ref}</dd></div>
           <div><dt>Specification</dt><dd>${w.spec}</dd></div>
-          <div><dt>Status</dt><dd>${w.badge}</dd></div>
-          <div><dt>Indication</dt><dd class="placeholder">${fmt(w.price)}<span class="ph">Illustrative placeholder</span></dd></div>
+          <div><dt>Availability</dt>${availDD}</div>
         </dl>
-        <div class="detail__cta">
-          <a class="btn btn--gold" href="${EBAY}" target="_blank" rel="noopener">See it on eBay ↗</a>
-          <button class="btn btn--ghost" id="openGallery">View gallery</button>
-        </div>
+        <div class="detail__cta">${cta}</div>
       </div>
     </div>
     <div class="detail__gallery" data-reveal>
@@ -476,7 +506,7 @@ function initWatch(){
   </div></section>
   <section class="more"><div class="container">
     <div class="sec-head">
-      <div><span class="eyebrow" data-reveal>Keep looking</span><h2 class="display" data-reveal data-delay="1">More from the collection</h2></div>
+      <div><span class="eyebrow" data-reveal>${w.sold?'Available now':'Keep looking'}</span><h2 class="display" data-reveal data-delay="1">${w.sold?'In stock right now':'More from the collection'}</h2></div>
       <a class="more-link" href="inventory.html">All watches ↗</a>
     </div>
     <div class="cards cards--3" id="moreCards">${more.map(cardHTML).join('')}</div>
@@ -493,8 +523,76 @@ function initWatch(){
 function initOwner(){
   initStats($('#stats'));
   initGarage();
+  const stills=$('#garageStills');
+  if(stills){
+    stills.innerHTML=Array.from({length:6},(_,i)=>{ const src=`assets/garage/photos/car-${String(i+1).padStart(2,'0')}.jpg`;
+      return `<button class="feed__tile" data-src="${src}" aria-label="Enlarge photo"><img src="${src}" alt="From the garage, a Porsche" loading="lazy"></button>`; }).join('');
+    $$('.feed__tile',stills).forEach(t=>t.addEventListener('click',()=>mediaOpen({type:'photo',src:t.dataset.src,cap:'From the garage'})));
+  }
   const open=()=>mediaOpen({type:'video',src:'assets/brand-film.mp4',cap:'Timescapes · the brand film'});
   const fp=$('#filmPlay'), fb=$('#filmBg'); if(fp) fp.addEventListener('click',open); if(fb) fb.addEventListener('click',open);
+}
+
+/* ---------------- QOL motion: image fade-in + nav shadow ---------------- */
+function initImgFade(){
+  if(REDUCE) return;
+  $$('.card__media img, .feed__tile img, .gallery-strip img, .cmp img, .inv-banner img').forEach(img=>{
+    if(img.complete && img.naturalWidth>0) return;        // already loaded (cached) — leave visible
+    img.style.opacity='0'; img.style.transition='opacity .8s cubic-bezier(.22,.61,.30,1)';
+    const show=()=>{ img.style.opacity='1'; };
+    img.addEventListener('load',show,{once:true}); img.addEventListener('error',show,{once:true});
+  });
+}
+function initNavScroll(){
+  const nav=$('.nav'); if(!nav) return;
+  let on=false, ticking=false;
+  const upd=()=>{ const s=window.scrollY>16; if(s!==on){ on=s; nav.classList.toggle('scrolled',s); } ticking=false; };
+  window.addEventListener('scroll',()=>{ if(!ticking){ ticking=true; requestAnimationFrame(upd); } },{passive:true}); upd();
+}
+
+/* ---------------- dynamic copy: a fresh wording every refresh ---------------- */
+const COPY={
+  heroLead:[
+    "A few of the good ones at a time. Rolex, Omega, Panerai, Breitling, shot up close so you know exactly what you're getting. When one grabs you, it's right there on eBay.",
+    "Just a handful at once. Rolex, Omega, Panerai, Breitling, photographed properly so nothing hides. See something you like and it's a click away on eBay.",
+    "Small batch, big names. Rolex, Omega, Panerai, Breitling, all shot close enough to count the seconds. When something clicks, it's waiting on eBay."
+  ],
+  statementHead:[
+    "Only the pieces that are worth owning, shown the exact way they deserve.",
+    "Only watches worth wearing, shown the way they're meant to be seen.",
+    "If it isn't worth owning, it isn't here. What's left, we shoot right."
+  ],
+  statementSub:[
+    "No fluff, no filler. Just the watch in real light, from every angle you'd actually want to see.",
+    "No props, no tricks. Just the watch in honest light, every angle that matters.",
+    "Nothing staged. Real light, real angles, the watch exactly as it sits."
+  ],
+  whyLead:[
+    "It really comes down to two things. The watches are looked after, and the prices are fair. The rest is just noise.",
+    "Two things, honestly. The watches are kept right and the prices stay fair. Everything else is noise.",
+    "Boils down to this. Clean watches, honest numbers. The rest sorts itself out."
+  ],
+  feedHead:[ "Straight off the bench", "Fresh off the bench", "Lately, on the bench" ],
+  ownerHead:[ "Watches are only half of it.", "The watches are just the start.", "It's not only the watches." ],
+  ownerTeaserLead:[
+    "Anthony's pushed past five thousand watches in three years, and he still goes over every one like it's going on his own wrist. The garage gets the exact same treatment. Three cars, a bike, all kept spotless.",
+    "Five thousand-plus watches in three years, and he still treats each one like it's about to land on his wrist. Same goes for the garage. Three cars, a bike, every one spotless.",
+    "Three years, north of five thousand watches, and he still checks them all like they're his own. The garage is no different. Three cars, one bike, kept clean."
+  ],
+  invLead:[
+    "What's in stock sits up top. The rest has already sold, but it stays up as the track record. Open any watch to spin it around in the light.",
+    "Available pieces are up top. Everything under them is sold, but we leave it up, call it the receipts. Open any watch to turn it in the light.",
+    "In stock first, sold below. We keep the sold ones up so you can see the history. Tap any watch to spin it around."
+  ],
+  ownerBio:[
+    "Three years in and past five thousand watches, Anthony still goes over every single one like it's about to land on his own wrist. The garage runs the same way. Three cars, a bike, all spotless. He actually wears the watches and actually drives the cars. None of it just sits there.",
+    "Three years, five thousand-plus watches, and he still inspects each one like it's heading to his own wrist. The garage is the same story. Three cars, a bike, kept spotless. He wears the watches and drives the cars. Nothing here is for show.",
+    "Past five thousand watches in three years, and Anthony still treats every one like his own. The cars get the same care. Three of them, plus a bike, all clean. He wears what he sells and drives what he parks. None of it sits idle."
+  ]
+};
+function applyVariants(){
+  $$('[data-vary]').forEach(el=>{ const a=COPY[el.dataset.vary];
+    if(a&&a.length) el.textContent=a[Math.floor(Math.random()*a.length)]; });
 }
 
 /* ============================================================
@@ -502,13 +600,16 @@ function initOwner(){
    ============================================================ */
 const page=document.body.dataset.page||'home';
 renderChrome(page);
+applyVariants();
 initBackToTop();
+initNavScroll();
 if(page==='home') initHome();
 else if(page==='inventory') initInventory();
 else if(page==='watch') initWatch();
 else if(page==='owner') initOwner();
 observeReveals();
 initVideoPerf();
+initImgFade();
 
 /* safety net: if reveals haven't started shortly after load (observer never
    fired, e.g. a stalled render pipeline), un-hide everything so the page is

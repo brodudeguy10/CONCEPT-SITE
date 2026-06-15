@@ -377,18 +377,23 @@ footer{padding:72px 0 44px;border-top:1px solid var(--line-2);background:#0a0907
 .lb__thumbs img.active{opacity:1;border-color:var(--gold)}
 
 /* ============ MEDIA LIGHTBOX (garage + film) ============ */
-.mlb{position:fixed;inset:0;z-index:130;background:rgba(6,5,4,.96);backdrop-filter:blur(10px);
+.mlb{position:fixed;inset:0;z-index:130;background:rgba(8,6,4,.58);backdrop-filter:blur(14px);
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:48px;
-  opacity:0;visibility:hidden;transition:opacity .4s,visibility .4s}
+  opacity:0;visibility:hidden;transition:opacity .45s,visibility .45s}
 .mlb.open{opacity:1;visibility:visible}
-.mlb__stage{display:flex;align-items:center;justify-content:center;transform:scale(.94);transition:transform .55s var(--ease)}
+/* ambient mode: a blurred, enlarged copy of the media glows behind it */
+.mlb__ambient{position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+.mlb__ambient video,.mlb__ambient img{position:absolute;inset:-18%;width:136%;height:136%;object-fit:cover;
+  opacity:0;transition:opacity 1.1s ease;filter:blur(72px) saturate(1.7) brightness(.8);transform:scale(1.08)}
+.mlb__ambient .show{opacity:.72}
+.mlb__stage{position:relative;z-index:2;display:flex;align-items:center;justify-content:center;transform:scale(.94);transition:transform .55s var(--ease)}
 .mlb.open .mlb__stage{transform:scale(1)}
-.mlb__stage video,.mlb__stage img{max-width:92vw;max-height:80vh;border-radius:8px;box-shadow:0 50px 100px rgba(0,0,0,.6);display:none}
+.mlb__stage video,.mlb__stage img{max-width:92vw;max-height:80vh;border-radius:8px;box-shadow:0 50px 110px rgba(0,0,0,.7);display:none}
 .mlb__stage video.show,.mlb__stage img.show{display:block}
-.mlb__close{position:absolute;top:24px;right:26px;width:46px;height:46px;border-radius:50%;border:1px solid var(--line);
+.mlb__close{position:absolute;top:24px;right:26px;z-index:3;width:46px;height:46px;border-radius:50%;border:1px solid var(--line);
   background:rgba(20,17,13,.6);color:var(--ink);font-size:18px;cursor:pointer}
 .mlb__close:hover{border-color:var(--gold);color:var(--gold)}
-.mlb__cap{font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-soft)}
+.mlb__cap{position:relative;z-index:2;font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-soft)}
 
 /* ============ back to top (single nav aid) ============ */
 .totop{position:fixed;right:26px;bottom:26px;z-index:60;width:48px;height:48px;border-radius:50%;
@@ -432,3 +437,31 @@ footer{padding:72px 0 44px;border-top:1px solid var(--line-2);background:#0a0907
   .shimmer,.spin__hint .swipe{animation:none}
   *{transition-duration:.001s!important}
 }
+
+/* ============ sold / in-stock ============ */
+.card.is-sold .card__media img{filter:grayscale(.35) brightness(.82);opacity:.92}
+.card.is-sold .card__info{opacity:.68}
+.card.is-sold:hover .card__media img{filter:grayscale(.18) brightness(.92)}
+.card__badge.sold{color:var(--ink-soft);border-color:var(--line);background:rgba(10,9,7,.6)}
+.sold-tag{display:inline-block;font-family:var(--mono);font-size:9px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--ink-soft);border:1px solid var(--line);border-radius:2px;padding:3px 8px;margin-left:6px;vertical-align:middle}
+.sold-note{font-size:14.5px;color:var(--ink-soft);margin-top:18px;max-width:30em;line-height:1.65;
+  border-left:2px solid var(--gold-line);padding-left:15px}
+.specs .dd-sold{color:var(--muted)}
+.specs .dd-stock{color:var(--gold)}
+
+/* ============ garage stills (Porsche photos) ============ */
+.garage-stills{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(12px,1.6vw,20px);margin-top:clamp(28px,4vw,44px)}
+.feed__tile{border:0;padding:0;display:block}
+@media(max-width:700px){ .garage-stills{grid-template-columns:1fr 1fr} }
+
+/* ============ QOL motion (subtle) ============ */
+.nav{transition:box-shadow .4s var(--ease), background .4s}
+.nav.scrolled{box-shadow:0 12px 34px rgba(0,0,0,.34);background:rgba(12,10,8,.88)}
+.btn--gold{position:relative;overflow:hidden}
+.btn--gold::after{content:"";position:absolute;top:0;left:-70%;width:45%;height:100%;pointer-events:none;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.42),transparent);transform:skewX(-18deg);
+  transition:left .7s var(--ease)}
+.btn--gold:hover::after{left:135%}
+#inventoryGrid{transition:opacity .3s var(--ease)}
+@media(prefers-reduced-motion:reduce){ .btn--gold::after{display:none} }
