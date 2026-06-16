@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>The Owner — Timescapes</title>
-<meta name="description" content="Anthony Savedra — the eye behind Timescapes. The bio, the numbers, the garage, and the brand film.">
+<title>The Owner · Timescapes</title>
+<meta name="description" content="Anthony Savedra, the eye behind Timescapes. U.S. military veteran, watch obsessive, car guy. The story, the credibility, and the brand film.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,500;1,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="icon" href="assets/logo.png">
-<link rel="stylesheet" href="styles.css">
-<script defer src="app.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Mulish:ital,wght@0,400;0,500;0,600;0,700;1,500&display=swap" rel="stylesheet">
+<link rel="icon" href="assets/brand/icon-green.svg">
+<link rel="stylesheet" href="styles.css?v=5">
+<script defer src="app.js?v=5"></script>
 </head>
 <body data-page="owner">
 
@@ -29,58 +29,26 @@
     </div>
   </section>
 
-  <!-- bio + stats -->
+  <!-- bio + credibility -->
   <section class="owner-bio">
     <div class="container owner-bio__grid">
       <div>
         <span class="eyebrow" data-reveal>The Story</span>
-        <p data-vary="ownerBio" data-reveal data-delay="1">Three years in and past five thousand watches, Anthony still goes over every single one like it's about to land on his own wrist. The garage runs the same way. Three cars, a bike, all spotless. He actually wears the watches and actually drives the cars. None of it just sits there.</p>
-        <div class="cta-row" style="margin-top:32px" data-reveal data-delay="2">
-          <a class="btn btn--ghost" href="https://www.instagram.com/ardevas09/" target="_blank" rel="noopener">See the garage on Instagram ↗</a>
+        <p data-vary="ownerBio" data-reveal data-delay="1">Anthony served in the U.S. military, and that discipline never left. It's why every watch gets the same once-over before it goes up: cleaned, checked, gone over like it's about to land on his own wrist. He's a car guy too, the kind who actually drives them, and the watches get treated the exact same way. Looked after. Used. Never just for show.</p>
+        <div class="creds" data-reveal data-delay="2">
+          <span class="cred"><b>★</b> U.S. Military Veteran</span>
+          <span class="cred">Runs on that same discipline</span>
+        </div>
+        <div class="cta-row" style="margin-top:30px" data-reveal data-delay="3">
+          <a class="btn btn--ghost" href="https://www.instagram.com/ardevas09/" target="_blank" rel="noopener">Follow along on Instagram ↗</a>
         </div>
       </div>
       <div class="stats" id="stats" data-reveal data-delay="1">
         <div><b data-count="3">0</b><small>Years in business</small></div>
         <div><b data-count="5000" data-suffix="+">0</b><small>Watches moved</small></div>
-        <div><b data-count="3">0</b><small>Cars in the garage</small></div>
-        <div><b data-count="1">0</b><small>Motorcycle</small></div>
+        <div><b data-count="100" data-suffix="%">0</b><small>Checked by hand</small></div>
+        <div><b data-count="4">0</b><small>Top brands stocked</small></div>
       </div>
-    </div>
-  </section>
-
-  <!-- garage switcher -->
-  <section class="garage-sec">
-    <div class="container">
-      <div class="sec-head">
-        <div>
-          <span class="eyebrow" data-reveal>The Garage</span>
-          <h2 class="display" data-reveal data-delay="1">The other obsession.</h2>
-        </div>
-        <div class="meta" data-reveal data-delay="2">Tap any clip to blow it up, sound and all.</div>
-      </div>
-      <div class="garage-wrap" data-reveal>
-        <div class="garage" id="garageStage">
-          <video id="garageVideo" muted loop playsinline preload="none" aria-hidden="true"></video>
-          <img id="garagePhoto" src="assets/lifestyle/drive.jpg" alt="Ford Raptor on a snowy mountain pass at sunset">
-          <span class="garage__tag" id="garageTag">Ferrari F8 · @ardevas09</span>
-          <button class="garage__zoom" id="garageZoom" aria-label="Enlarge this clip">⤢ Enlarge</button>
-        </div>
-        <div class="garage__chips" id="garageChips"></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- garage stills -->
-  <section class="garage-sec" style="padding-top:0">
-    <div class="container">
-      <div class="sec-head">
-        <div>
-          <span class="eyebrow" data-reveal>The Garage, in Stills</span>
-          <h2 class="display" data-reveal data-delay="1">Porsche, parked.</h2>
-        </div>
-        <div class="meta" data-reveal data-delay="2">Click any frame to enlarge.</div>
-      </div>
-      <div class="garage-stills" id="garageStills" data-reveal></div>
     </div>
   </section>
 
@@ -92,7 +60,7 @@
     <div class="container film__inner">
       <span class="eyebrow center" data-reveal>The Brand Film</span>
       <h2 class="display" data-reveal data-delay="1">Watches and horsepower.<br><em class="accent">Same obsession.</em></h2>
-      <p data-reveal data-delay="2">Good watches, fast cars. Both made to be used hard and kept clean. Drop the lights, turn it up, let it run.</p>
+      <p data-reveal data-delay="2">The same eye that picks the watches shows up in everything else he cares about. Hit play. This one's about the brand, and the obsession behind it.</p>
       <button class="film__play" id="filmPlay" data-reveal data-delay="3"><span class="pp">▶</span> Play with sound</button>
     </div>
   </section>

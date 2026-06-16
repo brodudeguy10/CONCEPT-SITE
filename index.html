@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Timescapes — Luxury Timepieces</title>
+<title>Timescapes · Luxury Timepieces</title>
 <meta name="description" content="Timescapes. A few good watches at a time, Rolex, Omega, Panerai, Breitling, shot up close so you know what you're getting. Looked after, priced fair, live on eBay.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,500;1,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="icon" href="assets/logo.png">
-<link rel="stylesheet" href="styles.css">
-<script defer src="app.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Mulish:ital,wght@0,400;0,500;0,600;0,700;1,500&display=swap" rel="stylesheet">
+<link rel="icon" href="assets/brand/icon-green.svg">
+<link rel="stylesheet" href="styles.css?v=5">
+<script defer src="app.js?v=5"></script>
 </head>
 <body data-page="home">
 
@@ -63,28 +63,11 @@
     </div>
   </section>
 
-  <!-- why timescapes (condensed) -->
+  <!-- why timescapes (condensed to three sentences) -->
   <section class="why">
     <div class="container">
       <span class="eyebrow" data-reveal>Why Timescapes</span>
-      <p class="why__lead" data-vary="whyLead" data-reveal data-delay="1">It really comes down to two things. The watches are looked after, and the prices are fair. The rest is just noise.</p>
-      <div class="why__grid">
-        <article class="why__card" data-reveal>
-          <span class="why__num">01 · Condition</span>
-          <h3>Looked after</h3>
-          <p>Every watch gets cleaned, checked and gone over before it goes up. Anthony handles each one like it's about to land on his own wrist. Half the time, it already has.</p>
-        </article>
-        <article class="why__card" data-reveal data-delay="1">
-          <span class="why__num">02 · Pricing</span>
-          <h3>Priced to move</h3>
-          <p>Straight numbers, no games. Nothing's padded just so you can argue it back down. You get a fair price, and the watch doesn't sit around long.</p>
-        </article>
-        <article class="why__card" data-reveal data-delay="2">
-          <span class="why__num">03 · The proof</span>
-          <h3>See for yourself</h3>
-          <p>Real photos, real light, every angle. It's all out in the open on eBay and Instagram, so look as long as you want before you reach out.</p>
-        </article>
-      </div>
+      <p class="why__lead" data-vary="whyLead" data-reveal data-delay="1">Every watch is cleaned, checked, and handled like it's going on Anthony's own wrist before it ever goes up. The prices are straight, with nothing padded to argue back down. What you see in the photos is exactly what shows up at your door.</p>
     </div>
   </section>
 
@@ -102,24 +85,22 @@
     </div>
   </section>
 
-  <!-- owner teaser -->
-  <section class="teaser">
-    <div class="teaser__bg">
-      <video src="assets/car.mp4" autoplay muted loop playsinline preload="metadata" data-auto aria-hidden="true"></video>
-    </div>
-    <div class="container teaser__inner">
-      <span class="eyebrow" data-reveal>The Owner</span>
-      <h2 class="display" data-vary="ownerHead" data-reveal data-delay="1">Watches are only half of it.</h2>
-      <p class="lead" data-vary="ownerTeaserLead" data-reveal data-delay="2">Anthony's pushed past five thousand watches in three years, and he still goes over every one like it's going on his own wrist. The garage gets the exact same treatment. Three cars, a bike, all kept spotless.</p>
-      <div class="stats" id="homeStats" data-reveal data-delay="2" style="margin-top:36px;max-width:560px">
-        <div><b data-count="3">0</b><small>Years in business</small></div>
-        <div><b data-count="5000" data-suffix="+">0</b><small>Watches moved</small></div>
-        <div><b data-count="3">0</b><small>Cars in the garage</small></div>
-        <div><b data-count="1">0</b><small>Motorcycle</small></div>
+  <!-- closer: sell the watches -->
+  <section class="closer">
+    <div class="container closer__grid">
+      <div class="closer__copy">
+        <span class="eyebrow" data-reveal>Find Yours</span>
+        <h2 class="display" data-reveal data-delay="1">The right one<br>is <em class="accent">already here.</em></h2>
+        <p class="lead" data-reveal data-delay="2">Shot up close, in real light, so the only surprise is how good it looks in person. Take your time. Browse what's in stock. When one stops you, it's a click away on eBay.</p>
+        <div class="cta-row" data-reveal data-delay="3">
+          <a class="btn btn--gold" href="inventory.html">Browse the inventory →</a>
+          <a class="btn btn--ghost" href="https://www.ebay.com/str/timescapesllc?widget_ver=artemis&media=COPY&utm_source=ig&utm_medium=social&utm_content=link_in_bio" target="_blank" rel="noopener">View on eBay ↗</a>
+        </div>
       </div>
-      <div class="cta-row" data-reveal data-delay="3" style="margin-top:36px">
-        <a class="btn btn--gold" href="owner.html">Meet Anthony →</a>
-      </div>
+      <a class="closer__feature" href="watch.html?id=speedy" data-reveal data-delay="2">
+        <img src="assets/watches/watch-8/07.jpg" alt="Omega Speedmaster 38mm, in stock now">
+        <div class="closer__tag"><span>In stock now</span><b>Omega Speedmaster 38mm</b></div>
+      </a>
     </div>
   </section>
 </main>

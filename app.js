@@ -153,7 +153,7 @@ function buildSpinViewer(el, watch, opts){
   $$('.spin__nav button',el).forEach(b=>b.addEventListener('click',ev=>{ ev.stopPropagation(); el.classList.add('touched'); cancelIdle(); show(frame+parseInt(b.dataset.d,10)); }));
 
   el.setAttribute('tabindex','0'); el.setAttribute('role','group');
-  el.setAttribute('aria-label',watch.brand+' '+watch.name+' — drag or use arrow keys to view angles');
+  el.setAttribute('aria-label',watch.brand+' '+watch.name+'. Drag or use arrow keys to view angles');
   el.addEventListener('keydown',e=>{ if(e.key==='ArrowLeft'){show(frame-1);el.classList.add('touched');}
     else if(e.key==='ArrowRight'){show(frame+1);el.classList.add('touched');} });
 
@@ -181,100 +181,129 @@ function shade(hex,amt){let c=hex.replace('#','');if(c.length===3)c=c.split('').
   r=clamp(r+amt,0,255);g=clamp(g+amt,0,255);b=clamp(b+amt,0,255);
   return '#'+[r,g,b].map(x=>x.toString(16).padStart(2,'0')).join('');}
 function watchSVG(o){
-  const C=200,R=190, lume=o.lume||o.hands, id=o.id;
+  const C=200, id=o.id, lume=o.lume||o.hands;
   // sunburst dial grain (radial spokes that catch the sweeping light)
   let sun="";
-  for(let i=0;i<140;i++){ const a=(i/140)*Math.PI*2, s=Math.sin(a), c=-Math.cos(a);
-    sun+=`<line x1="${(C+s*16).toFixed(1)}" y1="${(C+c*16).toFixed(1)}" x2="${(C+s*150).toFixed(1)}" y2="${(C+c*150).toFixed(1)}" stroke="${shade(o.dial,13)}" stroke-width=".7" opacity=".13"/>`; }
-  // printed minute track
+  for(let i=0;i<120;i++){ const a=(i/120)*Math.PI*2, s=Math.sin(a), c=-Math.cos(a);
+    sun+=`<line x1="${(C+s*14).toFixed(1)}" y1="${(C+c*14).toFixed(1)}" x2="${(C+s*150).toFixed(1)}" y2="${(C+c*150).toFixed(1)}" stroke="${shade(o.dial,16)}" stroke-width=".7" opacity=".14"/>`; }
+  // faint concentric snailing on the dial
+  let snail="";
+  for(let r=22;r<=150;r+=11){ snail+=`<circle cx="${C}" cy="${C}" r="${r}" fill="none" stroke="${shade(o.dial,12)}" stroke-width=".5" opacity=".07"/>`; }
+  // minute track printed on the chapter ring
   let ticks="";
-  for(let i=0;i<60;i++){ const a=(i/60)*Math.PI*2, major=(i%5===0), r1=major?155:159, r2=167, w=major?2.4:1;
-    ticks+=`<line x1="${(C+Math.sin(a)*r1).toFixed(1)}" y1="${(C-Math.cos(a)*r1).toFixed(1)}" x2="${(C+Math.sin(a)*r2).toFixed(1)}" y2="${(C-Math.cos(a)*r2).toFixed(1)}" stroke="#b7b0a1" stroke-width="${w}" opacity="${major?.7:.42}"/>`; }
-  // fluted bezel (alternating bright/dark facets)
+  for(let i=0;i<60;i++){ const a=(i/60)*Math.PI*2, major=(i%5===0), r1=major?150:153, r2=159, w=major?2.2:1;
+    ticks+=`<line x1="${(C+Math.sin(a)*r1).toFixed(1)}" y1="${(C-Math.cos(a)*r1).toFixed(1)}" x2="${(C+Math.sin(a)*r2).toFixed(1)}" y2="${(C-Math.cos(a)*r2).toFixed(1)}" stroke="#cbcdc7" stroke-width="${w}" opacity="${major?.78:.42}"/>`; }
+  // fluted steel bezel (alternating bright / dark facets)
   let flute="";
-  for(let i=0;i<88;i++){ const a=(i/88)*Math.PI*2, s=Math.sin(a), c=-Math.cos(a);
-    flute+=`<line x1="${(C+s*179).toFixed(1)}" y1="${(C+c*179).toFixed(1)}" x2="${(C+s*189).toFixed(1)}" y2="${(C+c*189).toFixed(1)}" stroke="${i%2?'#7a5d27':'#f3deab'}" stroke-width="2.4" opacity=".5"/>`; }
-  // applied steel hour indices with lume (skip 3 for the date, 12 a touch longer)
+  for(let i=0;i<90;i++){ const a=(i/90)*Math.PI*2, s=Math.sin(a), c=-Math.cos(a);
+    flute+=`<line x1="${(C+s*172).toFixed(1)}" y1="${(C+c*172).toFixed(1)}" x2="${(C+s*183).toFixed(1)}" y2="${(C+c*183).toFixed(1)}" stroke="${i%2?'#595c63':'#f2f4f7'}" stroke-width="2.3" opacity=".6"/>`; }
+  // applied steel hour indices with bevel highlight + lume (skip 3 for the date, 12 a touch longer)
   let idx="";
   for(let h=0;h<12;h++){ if(h===3) continue;
-    const top=C-148, len=(h===0)?24:18, w=8, lw=4;
+    const top=C-144, len=(h===0)?22:16, w=8.5, lw=4.5;
     idx+=`<g transform="rotate(${h*30} ${C} ${C})">
-      <rect x="${C-w/2}" y="${top}" width="${w}" height="${len}" rx="2" fill="url(#gs-${id})" stroke="#26221c" stroke-width=".6"/>
-      <rect x="${C-lw/2}" y="${top+3.5}" width="${lw}" height="${len-7}" rx="${lw/2}" fill="${lume}" opacity=".8"/></g>`; }
+      <rect x="${C-w/2-0.7}" y="${top-0.7}" width="${w+1.4}" height="${len+1.4}" rx="2.4" fill="#15130f" opacity=".55"/>
+      <rect x="${C-w/2}" y="${top}" width="${w}" height="${len}" rx="2" fill="url(#gs-${id})" stroke="#2a2620" stroke-width=".6"/>
+      <rect x="${C-w/2+1.1}" y="${top+1}" width="1.7" height="${len-2}" rx="0.85" fill="#ffffff" opacity=".5"/>
+      <rect x="${C-lw/2}" y="${top+3}" width="${lw}" height="${len-6}" rx="${lw/2}" fill="${lume}" opacity=".82"/></g>`; }
   return `<svg viewBox="0 0 400 400" xmlns="${NS}">
     <defs>
+      <radialGradient id="gcase-${id}" cx="38%" cy="30%" r="82%">
+        <stop offset="0%" stop-color="#ffffff"/><stop offset="36%" stop-color="#d4d7de"/><stop offset="66%" stop-color="#989ba3"/><stop offset="100%" stop-color="#5d6068"/></radialGradient>
       <radialGradient id="gd-${id}" cx="40%" cy="32%" r="82%">
-        <stop offset="0%" stop-color="${shade(o.dial,20)}"/><stop offset="55%" stop-color="${o.dial}"/><stop offset="100%" stop-color="${shade(o.dial,-26)}"/></radialGradient>
+        <stop offset="0%" stop-color="${shade(o.dial,18)}"/><stop offset="55%" stop-color="${o.dial}"/><stop offset="100%" stop-color="${shade(o.dial,-28)}"/></radialGradient>
       <linearGradient id="gb-${id}" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0%" stop-color="#f4e2b3"/><stop offset="30%" stop-color="#c9a24b"/><stop offset="52%" stop-color="#86692c"/><stop offset="74%" stop-color="#e8d5a8"/><stop offset="100%" stop-color="#9c7a34"/></linearGradient>
+        <stop offset="0%" stop-color="#f1f3f6"/><stop offset="24%" stop-color="#b9bcc4"/><stop offset="50%" stop-color="#73767e"/><stop offset="70%" stop-color="#dadce1"/><stop offset="100%" stop-color="#888b94"/></linearGradient>
+      <linearGradient id="grh-${id}" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#565960"/><stop offset="55%" stop-color="#3b3d42"/><stop offset="100%" stop-color="#2b2d31"/></linearGradient>
       <linearGradient id="gs-${id}" x1="0" y1="0" x2="0" y2="1">
         <stop offset="0%" stop-color="#fcfcfe"/><stop offset="46%" stop-color="#cfd0d6"/><stop offset="100%" stop-color="#81838d"/></linearGradient>
       <linearGradient id="gh-${id}" x1="0" y1="0" x2="1" y2="0">
         <stop offset="0%" stop-color="${shade(o.hands,-36)}"/><stop offset="42%" stop-color="${o.hands}"/><stop offset="52%" stop-color="#ffffff"/><stop offset="62%" stop-color="${o.hands}"/><stop offset="100%" stop-color="${shade(o.hands,-46)}"/></linearGradient>
       <radialGradient id="gv-${id}" cx="50%" cy="50%" r="50%">
-        <stop offset="0%" stop-color="#000" stop-opacity="0"/><stop offset="74%" stop-color="#000" stop-opacity="0"/><stop offset="100%" stop-color="#000" stop-opacity=".4"/></radialGradient>
+        <stop offset="0%" stop-color="#000" stop-opacity="0"/><stop offset="70%" stop-color="#000" stop-opacity="0"/><stop offset="100%" stop-color="#000" stop-opacity=".42"/></radialGradient>
       <radialGradient id="gsh-${id}" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#fff" stop-opacity=".9"/><stop offset="100%" stop-color="#fff" stop-opacity="0"/></radialGradient>
-      <radialGradient id="gar-${id}" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#74a6e6" stop-opacity=".28"/><stop offset="100%" stop-color="#74a6e6" stop-opacity="0"/></radialGradient>
-      <clipPath id="dc-${id}"><circle cx="${C}" cy="${C}" r="167"/></clipPath>
-      <clipPath id="cf-${id}"><circle cx="${C}" cy="${C}" r="189"/></clipPath>
+      <radialGradient id="gcrys-${id}" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#fff" stop-opacity=".2"/><stop offset="55%" stop-color="#fff" stop-opacity=".045"/><stop offset="100%" stop-color="#fff" stop-opacity="0"/></radialGradient>
+      <radialGradient id="gar-${id}" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#7ba6dd" stop-opacity=".2"/><stop offset="100%" stop-color="#7ba6dd" stop-opacity="0"/></radialGradient>
+      <clipPath id="dc-${id}"><circle cx="${C}" cy="${C}" r="160"/></clipPath>
+      <clipPath id="cf-${id}"><circle cx="${C}" cy="${C}" r="184"/></clipPath>
     </defs>
 
-    <circle cx="${C}" cy="${C}" r="${R}" fill="url(#gb-${id})"/>
+    <!-- polished steel case + fluted bezel -->
+    <circle cx="${C}" cy="${C}" r="190" fill="url(#gcase-${id})"/>
+    <circle cx="${C}" cy="${C}" r="190" fill="none" stroke="#ffffff" stroke-opacity=".55" stroke-width="1"/>
+    <circle cx="${C}" cy="${C}" r="186" fill="none" stroke="#000" stroke-opacity=".22" stroke-width="2"/>
+    <circle cx="${C}" cy="${C}" r="183" fill="url(#gb-${id})"/>
     ${flute}
-    <circle cx="${C}" cy="${C}" r="178" fill="none" stroke="#000" stroke-opacity=".25" stroke-width="1.4"/>
-    <circle cx="${C}" cy="${C}" r="172" fill="${shade(o.dial,-34)}"/>
-    <circle cx="${C}" cy="${C}" r="167" fill="url(#gd-${id})"/>
-    <g clip-path="url(#dc-${id})">${sun}</g>
-    <circle cx="${C}" cy="${C}" r="167" fill="url(#gv-${id})"/>
+    <circle cx="${C}" cy="${C}" r="171" fill="none" stroke="#000" stroke-opacity=".3" stroke-width="1.4"/>
+
+    <!-- recessed chapter ring + dial -->
+    <circle cx="${C}" cy="${C}" r="170" fill="url(#grh-${id})"/>
+    <circle cx="${C}" cy="${C}" r="161" fill="${shade(o.dial,-30)}"/>
+    <circle cx="${C}" cy="${C}" r="160" fill="url(#gd-${id})"/>
+    <g clip-path="url(#dc-${id})">${sun}${snail}</g>
+    <circle cx="${C}" cy="${C}" r="160" fill="url(#gv-${id})"/>
 
     ${ticks}
     ${idx}
 
-    <g clip-path="url(#dc-${id})" pointer-events="none"><ellipse cx="${C-58}" cy="${C+64}" rx="92" ry="64" fill="url(#gar-${id})"/></g>
+    <!-- anti-reflective coating tint catching the lower-left -->
+    <g clip-path="url(#dc-${id})" pointer-events="none"><ellipse cx="${C-56}" cy="${C+62}" rx="92" ry="64" fill="url(#gar-${id})"/></g>
 
-    <rect x="259" y="${C-16}" width="38" height="32" rx="2.5" fill="${shade(o.dial,-54)}" stroke="url(#gs-${id})" stroke-width="1.6"/>
-    <text x="278" y="${C+6}" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="19" font-weight="600" fill="#efe9dd">${o.date}</text>
+    <!-- date window -->
+    <rect x="258" y="${C-15}" width="38" height="30" rx="2.5" fill="${shade(o.dial,-58)}" stroke="url(#gs-${id})" stroke-width="1.6"/>
+    <rect x="258" y="${C-15}" width="38" height="6" fill="#000" opacity=".18"/>
+    <text x="277" y="${C+6}" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="18" font-weight="600" fill="#eceef0">${o.date}</text>
 
-    <text x="${C}" y="130" text-anchor="middle" font-family="Cormorant Garamond,Georgia,serif" font-size="23" font-weight="600" letter-spacing="2" fill="${o.accent}">TIMESCAPES</text>
-    <text x="${C}" y="147" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="7.5" letter-spacing="3.5" fill="#8f8777">AUTOMATIC</text>
+    <!-- printed dial text -->
+    <text x="${C}" y="128" text-anchor="middle" font-family="Macaria,Georgia,serif" font-size="21" font-weight="500" letter-spacing="3.5" fill="${o.accent}">TIMESCAPES</text>
+    <text x="${C}" y="145" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="7" letter-spacing="3.4" fill="#9a9c92">AUTOMATIC</text>
+    <text x="${C}" y="280" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="6.5" letter-spacing="3" fill="#8f9189">SAVEDRA · 200M</text>
 
-    <g clip-path="url(#dc-${id})" pointer-events="none">
-      <ellipse cx="${C-52}" cy="${C-58}" rx="150" ry="118" fill="#ffffff" opacity=".05"/>
-      <path d="M ${C-150},${C-10} Q ${C-40},${C-150} ${C+140},${C-118}" stroke="#ffffff" stroke-opacity=".07" stroke-width="2.4" fill="none" stroke-linecap="round"/>
-    </g>
-    <g clip-path="url(#cf-${id})" pointer-events="none"><g class="dial-sheen">
-      <ellipse cx="${C}" cy="${C-120}" rx="124" ry="54" fill="url(#gsh-${id})" opacity=".10"/>
-      <ellipse cx="${C}" cy="${C+120}" rx="124" ry="54" fill="url(#gsh-${id})" opacity=".05"/>
-    </g></g>
+    <!-- crown -->
+    <rect x="383" y="${C-6}" width="8" height="12" fill="url(#gs-${id})"/>
+    <rect x="390" y="${C-9}" width="9" height="18" rx="2.2" fill="url(#gs-${id})" stroke="#2a2620" stroke-width=".5"/>
+    <g stroke="#5a5d63" stroke-width=".7" opacity=".7"><line x1="392" y1="${C-7}" x2="392" y2="${C+7}"/><line x1="394.5" y1="${C-8}" x2="394.5" y2="${C+8}"/><line x1="397" y1="${C-7}" x2="397" y2="${C+7}"/></g>
 
     <g data-h></g><g data-m></g><g data-s></g>
 
     <circle cx="${C}" cy="${C}" r="7.5" fill="url(#gs-${id})" stroke="#26221c" stroke-width=".6"/>
     <circle cx="${C}" cy="${C}" r="2.6" fill="${shade(o.dial,-40)}"/>
+
+    <!-- sapphire crystal: soft domed glare + bright rim crescent, over everything -->
+    <g clip-path="url(#cf-${id})" pointer-events="none">
+      <ellipse cx="${C-44}" cy="${C-64}" rx="150" ry="122" fill="url(#gcrys-${id})"/>
+      <path d="M ${C-150},${C+10} A 158 158 0 0 1 ${C+92},${C-128}" stroke="#ffffff" stroke-opacity=".18" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <ellipse cx="${C-72}" cy="${C-84}" rx="46" ry="22" fill="#ffffff" opacity=".10"/>
+      <g class="dial-sheen">
+        <ellipse cx="${C}" cy="${C-118}" rx="120" ry="50" fill="url(#gsh-${id})" opacity=".09"/>
+        <ellipse cx="${C}" cy="${C+118}" rx="120" ry="50" fill="url(#gsh-${id})" opacity=".045"/>
+      </g>
+    </g>
   </svg>`;
 }
 function buildLiveWatch(faceEl, chipEl, toggleEl){
   if(!faceEl) return;
-  const PAL={ day:{dial:'#0e0d0b',accent:'#c9a24b',hands:'#e9e6dc',sec:'#c98a4b',lume:'#d2c39c'},
-              lume:{dial:'#091310',accent:'#79e6a6',hands:'#cdeede',sec:'#79e6a6',lume:'#8af5bb'} };
+  const PAL={ day:{dial:'#262626',accent:'#9ba089',hands:'#e7e8ea',sec:'#898c79',lume:'#cdd0c2'},
+              lume:{dial:'#14170f',accent:'#aeb893',hands:'#d8ddca',sec:'#aebb8e',lume:'#c6d2a6'} };
   let mode='day',hH,mH,sH; const C=200;
   function render(){
     const p=PAL[mode];
     faceEl.innerHTML=watchSVG({id:'live',dial:p.dial,accent:p.accent,hands:p.hands,date:new Date().getDate(),sec:p.sec,lume:p.lume});
     hH=$('[data-h]',faceEl);mH=$('[data-m]',faceEl);sH=$('[data-s]',faceEl);
-    // hands: faceted batons with lume + a baked soft shadow (cheaper than a per-frame filter)
-    const hp=`M ${C},${C-92} L ${C+5.5},${C-77} L ${C+4},${C+22} L ${C-4},${C+22} L ${C-5.5},${C-77} Z`;
-    const mp=`M ${C},${C-134} L ${C+4.5},${C-118} L ${C+3},${C+24} L ${C-3},${C+24} L ${C-4.5},${C-118} Z`;
-    hH.innerHTML=`<path d="${hp}" transform="translate(1.2,2.4)" fill="#000" opacity=".26"/>`
-      +`<path d="${hp}" fill="url(#gh-live)" stroke="#171410" stroke-width=".5"/>`
-      +`<rect x="${C-3.5}" y="${C-72}" width="7" height="70" rx="3.5" fill="${p.lume}" opacity=".9"/>`;
-    mH.innerHTML=`<path d="${mp}" transform="translate(1.2,2.4)" fill="#000" opacity=".26"/>`
-      +`<path d="${mp}" fill="url(#gh-live)" stroke="#171410" stroke-width=".5"/>`
-      +`<rect x="${C-3.5}" y="${C-112}" width="7" height="110" rx="3.5" fill="${p.lume}" opacity=".9"/>`;
-    sH.innerHTML=`<g transform="translate(1,2.2)" opacity=".22" fill="#000"><rect x="${C-1.2}" y="${C-142}" width="2.4" height="180" rx="1.2"/><circle cx="${C}" cy="${C+36}" r="7"/></g>`
-      +`<rect x="${C-1.2}" y="${C-142}" width="2.4" height="180" rx="1.2" fill="${p.sec}"/>`
-      +`<circle cx="${C}" cy="${C-116}" r="5" fill="${p.sec}"/><circle cx="${C}" cy="${C-116}" r="2.3" fill="${p.lume}"/>`
-      +`<circle cx="${C}" cy="${C+36}" r="7" fill="${p.sec}"/>`;
+    // hands: polished sword batons with a lume channel + a baked soft shadow (cheaper than a per-frame filter)
+    const hp=`M ${C},${C-100} L ${C+5},${C-84} L ${C+3.4},${C+20} L ${C-3.4},${C+20} L ${C-5},${C-84} Z`;
+    const mp=`M ${C},${C-148} L ${C+4.2},${C-130} L ${C+2.8},${C+22} L ${C-2.8},${C+22} L ${C-4.2},${C-130} Z`;
+    hH.innerHTML=`<path d="${hp}" transform="translate(1.4,2.6)" fill="#000" opacity=".25"/>`
+      +`<path d="${hp}" fill="url(#gh-live)" stroke="#15120e" stroke-width=".5"/>`
+      +`<rect x="${C-2.6}" y="${C-84}" width="5.2" height="80" rx="2.6" fill="${p.lume}" opacity=".88"/>`;
+    mH.innerHTML=`<path d="${mp}" transform="translate(1.4,2.6)" fill="#000" opacity=".25"/>`
+      +`<path d="${mp}" fill="url(#gh-live)" stroke="#15120e" stroke-width=".5"/>`
+      +`<rect x="${C-2.2}" y="${C-128}" width="4.4" height="120" rx="2.2" fill="${p.lume}" opacity=".88"/>`;
+    sH.innerHTML=`<g transform="translate(1.2,2.4)" opacity=".2" fill="#000"><rect x="${C-1.1}" y="${C-150}" width="2.2" height="188" rx="1.1"/><circle cx="${C}" cy="${C+34}" r="6.5"/></g>`
+      +`<rect x="${C-1.1}" y="${C-150}" width="2.2" height="188" rx="1.1" fill="${p.sec}"/>`
+      +`<circle cx="${C}" cy="${C-118}" r="5" fill="${p.sec}"/><circle cx="${C}" cy="${C-118}" r="2.2" fill="${p.lume}"/>`
+      +`<circle cx="${C}" cy="${C+34}" r="6.5" fill="${p.sec}"/><circle cx="${C}" cy="${C+34}" r="2.3" fill="${shade(p.dial,-26)}"/>`;
   }
   render();
   function tick(){
@@ -316,7 +345,7 @@ function ensurePhotoLightbox(){
     go(LB.idx);
   }
   function go(i){ if(!LB.list.length)return; LB.idx=((i%LB.list.length)+LB.list.length)%LB.list.length;
-    const t=LB.list[LB.idx]; LB.img.src=t.src; LB.img.alt=t.w.brand+' '+t.w.name+' — Ref. '+t.w.ref;
+    const t=LB.list[LB.idx]; LB.img.src=t.src; LB.img.alt=t.w.brand+' '+t.w.name+', Ref. '+t.w.ref;
     $$('img',LB.thumbs).forEach((im,k)=>{ im.classList.toggle('active',k===LB.idx); if(k===LB.idx) im.scrollIntoView({block:'nearest',inline:'center'}); }); }
   function close(){ el.classList.remove('open'); document.body.style.overflow=''; }
   LB._open=(filter,src)=>{ LB.filter=filter||'all'; buildFilters(); apply(); if(src){ const k=LB.list.findIndex(t=>t.src===src); if(k>=0) go(k); } el.classList.add('open'); document.body.style.overflow='hidden'; };
@@ -412,7 +441,19 @@ function initGarage(){
    ============================================================ */
 function initBackToTop(){
   const btn=document.createElement('button');
-  btn.className='totop'; btn.setAttribute('aria-label','Back to top'); btn.innerHTML='↑';
+  btn.className='totop'; btn.setAttribute('aria-label','Back to top');
+  // a little watch face that also reads as an "up" button: bezel + ticks + crown,
+  // with the hands swept up into a chevron/arrow pointing to 12.
+  btn.innerHTML=`<svg viewBox="0 0 48 48" aria-hidden="true">
+    <circle cx="24" cy="24" r="20" fill="none" stroke="currentColor" stroke-width="2" opacity=".45"/>
+    <g stroke="currentColor" stroke-width="1.7" stroke-linecap="round" opacity=".6">
+      <line x1="24" y1="6.4" x2="24" y2="9.6"/><line x1="41.6" y1="24" x2="38.4" y2="24"/>
+      <line x1="24" y1="41.6" x2="24" y2="38.4"/><line x1="6.4" y1="24" x2="9.6" y2="24"/></g>
+    <rect x="42.6" y="21.6" width="4" height="4.8" rx="1.2" fill="currentColor" opacity=".6"/>
+    <g class="totop__hands" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M24 31 V16.5"/><path d="M16.6 23.2 L24 15.4 L31.4 23.2"/></g>
+    <circle cx="24" cy="24" r="1.7" fill="currentColor"/>
+  </svg>`;
   document.body.appendChild(btn);
   btn.addEventListener('click',()=>window.scrollTo({top:0,behavior:REDUCE?'auto':'smooth'}));
   let ticking=false;
@@ -426,7 +467,7 @@ function initBackToTop(){
 function navHTML(page){
   const a=(href,label,key)=>`<a href="${href}" class="${(page===key||(key==='inventory'&&page==='watch'))?'active':''}">${label}</a>`;
   return `<div class="container nav__row">
-    <a href="index.html" class="brand" aria-label="Timescapes home"><img src="assets/logo.png" alt="Timescapes">Timescapes</a>
+    <a href="index.html" class="brand" aria-label="Timescapes home"><img src="assets/brand/icon-green.svg" alt="">Timescapes</a>
     <nav class="nav__links" id="navLinks" aria-label="Primary">
       ${a('index.html','Home','home')}
       ${a('inventory.html','Our Watches','inventory')}
@@ -442,7 +483,7 @@ function footerHTML(){
   return `<div class="container">
     <div class="foot__row">
       <div class="foot__brand">
-        <div class="fb-top"><img src="assets/logo.png" alt="Timescapes">Timescapes</div>
+        <div class="fb-top"><img src="assets/brand/icon-green.svg" alt="">Timescapes</div>
         <p>Watches looked after and priced fair. A few good ones at a time, shot in real light, live on eBay and Instagram.</p>
       </div>
       <div class="foot__links">
@@ -531,7 +572,7 @@ function initWatch(){
   const root=$('#watchRoot'); if(!root) return;
   const id=new URLSearchParams(location.search).get('id');
   const w=byId(id)||WATCHES[0];
-  document.title=`${w.brand} ${w.name} — Timescapes`;
+  document.title=`${w.brand} ${w.name} · Timescapes`;
   const more=ourWatches().filter(x=>x.id!==w.id).slice(0,3);
   const soldTag = w.sold ? '<span class="sold-tag">Sold</span>' : '';
   const availDD = w.sold ? '<dd class="dd-sold">Sold</dd>' : '<dd class="dd-stock">Available now</dd>';
@@ -580,13 +621,6 @@ function initWatch(){
 }
 function initOwner(){
   initStats($('#stats'));
-  initGarage();
-  const stills=$('#garageStills');
-  if(stills){
-    stills.innerHTML=Array.from({length:6},(_,i)=>{ const src=`assets/garage/photos/car-${String(i+1).padStart(2,'0')}.jpg`;
-      return `<button class="feed__tile" data-src="${src}" aria-label="Enlarge photo"><img src="${src}" alt="From the garage, a Porsche" loading="lazy"></button>`; }).join('');
-    $$('.feed__tile',stills).forEach(t=>t.addEventListener('click',()=>mediaOpen({type:'photo',src:t.dataset.src,cap:'From the garage'})));
-  }
   const open=()=>mediaOpen({type:'video',src:'assets/brand-film.mp4',cap:'Timescapes · the brand film'});
   const fp=$('#filmPlay'), fb=$('#filmBg'); if(fp) fp.addEventListener('click',open); if(fb) fb.addEventListener('click',open);
 }
@@ -611,7 +645,7 @@ function initNavScroll(){
 /* ---------------- dynamic copy: a fresh wording every refresh ---------------- */
 const COPY={
   heroLead:[
-    "A few of the good ones at a time. Rolex, Omega, Panerai, Breitling, shot up close so you know exactly what you're getting. When one grabs you, it's right there on eBay.",
+    "A few good ones at a time. Rolex. Omega. Panerai. Breitling. Shot up close so you see exactly what you're getting, and when one grabs you, it's right there on eBay.",
     "Just a handful at once. Rolex, Omega, Panerai, Breitling, photographed properly so nothing hides. See something you like and it's a click away on eBay.",
     "Small batch, big names. Rolex, Omega, Panerai, Breitling, all shot close enough to count the seconds. When something clicks, it's waiting on eBay."
   ],
@@ -621,12 +655,12 @@ const COPY={
     "If it isn't worth owning, it isn't here. What's left, we shoot right."
   ],
   statementSub:[
-    "No fluff, no filler. Just the watch in real light, from every angle you'd actually want to see.",
+    "No fluff. No filler. Just the watch in real light, from every angle you'd actually want to see before you buy.",
     "No props, no tricks. Just the watch in honest light, every angle that matters.",
     "Nothing staged. Real light, real angles, the watch exactly as it sits."
   ],
   whyLead:[
-    "It really comes down to two things. The watches are looked after, and the prices are fair. The rest is just noise.",
+    "Every watch is cleaned, checked, and handled like it's going on Anthony's own wrist before it ever goes up. The prices are straight, with nothing padded to argue back down. What you see in the photos is exactly what shows up at your door.",
     "Two things, honestly. The watches are kept right and the prices stay fair. Everything else is noise.",
     "Boils down to this. Clean watches, honest numbers. The rest sorts itself out."
   ],
@@ -643,14 +677,14 @@ const COPY={
     "In stock first, sold below. We keep the sold ones up so you can see the history. Tap any watch to spin it around."
   ],
   ownerBio:[
-    "Three years in and past five thousand watches, Anthony still goes over every single one like it's about to land on his own wrist. The garage runs the same way. Three cars, a bike, all spotless. He actually wears the watches and actually drives the cars. None of it just sits there.",
-    "Three years, five thousand-plus watches, and he still inspects each one like it's heading to his own wrist. The garage is the same story. Three cars, a bike, kept spotless. He wears the watches and drives the cars. Nothing here is for show.",
-    "Past five thousand watches in three years, and Anthony still treats every one like his own. The cars get the same care. Three of them, plus a bike, all clean. He wears what he sells and drives what he parks. None of it sits idle."
+    "Anthony served in the U.S. military, and that discipline never left. It's why every watch gets the same once-over before it goes up: cleaned, checked, gone over like it's about to land on his own wrist. He's a car guy too, the kind who actually drives them, and the watches get treated the exact same way. Looked after. Used. Never just for show."
   ]
 };
+/* deterministic: always the first (canonical) wording, so the page reads
+   exactly the same on every refresh — no more "two different versions". */
 function applyVariants(){
   $$('[data-vary]').forEach(el=>{ const a=COPY[el.dataset.vary];
-    if(a&&a.length) el.textContent=a[Math.floor(Math.random()*a.length)]; });
+    if(a&&a.length) el.textContent=a[0]; });
 }
 
 /* ============================================================
