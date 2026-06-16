@@ -50,16 +50,20 @@ body{
   line-height:1.6;
   overflow-x:hidden;
 }
-/* soft sage vignette + faint grain for depth (kept subtle) */
+/* viewport-locked backdrop: a clean charcoal grade (keeps the brand grey) with
+   a soft sage depth glow. Lives on a fixed pseudo, so no background-attachment. */
 body::before{
   content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
   background:
-    radial-gradient(1200px 760px at 78% -8%, rgba(137,140,121,.10), transparent 60%),
-    radial-gradient(900px 600px at 0% 102%, rgba(137,140,121,.05), transparent 55%);
+    radial-gradient(1100px 720px at 84% -10%, rgba(137,140,121,.13), transparent 62%),
+    radial-gradient(1200px 820px at 6% 108%, rgba(137,140,121,.05), transparent 60%),
+    linear-gradient(158deg,#2c2c2a 0%,#262626 48%,#212120 100%);
 }
+/* faint brand pattern (from the Timescapes package) as a clean texture, not noise */
 body::after{
-  content:"";position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.035;mix-blend-mode:overlay;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:url("assets/brand/pattern-dark.png") center center / cover no-repeat;
+  opacity:.16;mix-blend-mode:soft-light;
 }
 a{color:inherit;text-decoration:none}
 img{max-width:100%;display:block}
