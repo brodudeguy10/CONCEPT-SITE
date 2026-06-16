@@ -287,6 +287,9 @@ function buildLiveWatch(faceEl, chipEl, toggleEl){
   const PAL={ day:{dial:'#262626',accent:'#9ba089',hands:'#e7e8ea',sec:'#898c79',lume:'#cdd0c2'},
               lume:{dial:'#14170f',accent:'#aeb893',hands:'#d8ddca',sec:'#aebb8e',lume:'#c6d2a6'} };
   let mode='day',hH,mH,sH; const C=200;
+  // light overlays that sit above the dial and survive every re-render
+  const glint=document.createElement('div'); glint.className='livewatch__glint'; glint.setAttribute('aria-hidden','true');
+  const glare=document.createElement('div'); glare.className='livewatch__glare'; glare.setAttribute('aria-hidden','true');
   function render(){
     const p=PAL[mode];
     faceEl.innerHTML=watchSVG({id:'live',dial:p.dial,accent:p.accent,hands:p.hands,date:new Date().getDate(),sec:p.sec,lume:p.lume});
@@ -304,6 +307,7 @@ function buildLiveWatch(faceEl, chipEl, toggleEl){
       +`<rect x="${C-1.1}" y="${C-150}" width="2.2" height="188" rx="1.1" fill="${p.sec}"/>`
       +`<circle cx="${C}" cy="${C-118}" r="5" fill="${p.sec}"/><circle cx="${C}" cy="${C-118}" r="2.2" fill="${p.lume}"/>`
       +`<circle cx="${C}" cy="${C+34}" r="6.5" fill="${p.sec}"/><circle cx="${C}" cy="${C+34}" r="2.3" fill="${shade(p.dial,-26)}"/>`;
+    faceEl.appendChild(glint); faceEl.appendChild(glare);
   }
   render();
   function tick(){
@@ -315,6 +319,24 @@ function buildLiveWatch(faceEl, chipEl, toggleEl){
   }
   tick();
   if(toggleEl) toggleEl.addEventListener('click',()=>{ mode=mode==='day'?'lume':'day'; toggleEl.textContent=mode==='day'?'Lume':'Day'; render(); });
+
+  // subtle "real watch under moving light" interaction: the dial tilts gently
+  // toward the cursor while a soft highlight tracks the pointer across the glass.
+  if(!REDUCE && FINE){
+    const wrap=faceEl.closest('.livewatch')||faceEl; let raf=null;
+    wrap.addEventListener('pointermove',e=>{
+      const r=faceEl.getBoundingClientRect(); if(!r.width) return;
+      const px=clamp((e.clientX-r.left)/r.width,0,1), py=clamp((e.clientY-r.top)/r.height,0,1);
+      if(raf) cancelAnimationFrame(raf);
+      raf=requestAnimationFrame(()=>{
+        faceEl.style.transform=`rotateX(${((0.5-py)*10).toFixed(2)}deg) rotateY(${((px-0.5)*10).toFixed(2)}deg)`;
+        glare.style.setProperty('--gx',(px*100).toFixed(1)+'%');
+        glare.style.setProperty('--gy',(py*100).toFixed(1)+'%');
+      });
+      wrap.classList.add('lw-live');
+    });
+    wrap.addEventListener('pointerleave',()=>{ if(raf) cancelAnimationFrame(raf); faceEl.style.transform=''; wrap.classList.remove('lw-live'); });
+  }
 }
 
 /* ============================================================
@@ -642,57 +664,14 @@ function initNavScroll(){
   window.addEventListener('scroll',()=>{ if(!ticking){ ticking=true; requestAnimationFrame(upd); } },{passive:true}); upd();
 }
 
-/* ---------------- dynamic copy: a fresh wording every refresh ---------------- */
-const COPY={
-  heroLead:[
-    "A few good ones at a time. Rolex. Omega. Panerai. Breitling. Shot up close so you see exactly what you're getting, and when one grabs you, it's right there on eBay.",
-    "Just a handful at once. Rolex, Omega, Panerai, Breitling, photographed properly so nothing hides. See something you like and it's a click away on eBay.",
-    "Small batch, big names. Rolex, Omega, Panerai, Breitling, all shot close enough to count the seconds. When something clicks, it's waiting on eBay."
-  ],
-  statementHead:[
-    "Only the pieces that are worth owning, shown the exact way they deserve.",
-    "Only watches worth wearing, shown the way they're meant to be seen.",
-    "If it isn't worth owning, it isn't here. What's left, we shoot right."
-  ],
-  statementSub:[
-    "No fluff. No filler. Just the watch in real light, from every angle you'd actually want to see before you buy.",
-    "No props, no tricks. Just the watch in honest light, every angle that matters.",
-    "Nothing staged. Real light, real angles, the watch exactly as it sits."
-  ],
-  whyLead:[
-    "Every watch is cleaned, checked, and handled like it's going on Anthony's own wrist before it ever goes up. The prices are straight, with nothing padded to argue back down. What you see in the photos is exactly what shows up at your door.",
-    "Two things, honestly. The watches are kept right and the prices stay fair. Everything else is noise.",
-    "Boils down to this. Clean watches, honest numbers. The rest sorts itself out."
-  ],
-  feedHead:[ "Straight off the bench", "Fresh off the bench", "Lately, on the bench" ],
-  ownerHead:[ "Watches are only half of it.", "The watches are just the start.", "It's not only the watches." ],
-  ownerTeaserLead:[
-    "Anthony's pushed past five thousand watches in three years, and he still goes over every one like it's going on his own wrist. The garage gets the exact same treatment. Three cars, a bike, all kept spotless.",
-    "Five thousand-plus watches in three years, and he still treats each one like it's about to land on his wrist. Same goes for the garage. Three cars, a bike, every one spotless.",
-    "Three years, north of five thousand watches, and he still checks them all like they're his own. The garage is no different. Three cars, one bike, kept clean."
-  ],
-  invLead:[
-    "What's in stock sits up top. The rest has already sold, but it stays up as the track record. Open any watch to spin it around in the light.",
-    "Available pieces are up top. Everything under them is sold, but we leave it up, call it the receipts. Open any watch to turn it in the light.",
-    "In stock first, sold below. We keep the sold ones up so you can see the history. Tap any watch to spin it around."
-  ],
-  ownerBio:[
-    "Anthony served in the U.S. military, and that discipline never left. It's why every watch gets the same once-over before it goes up: cleaned, checked, gone over like it's about to land on his own wrist. He's a car guy too, the kind who actually drives them, and the watches get treated the exact same way. Looked after. Used. Never just for show."
-  ]
-};
-/* deterministic: always the first (canonical) wording, so the page reads
-   exactly the same on every refresh — no more "two different versions". */
-function applyVariants(){
-  $$('[data-vary]').forEach(el=>{ const a=COPY[el.dataset.vary];
-    if(a&&a.length) el.textContent=a[0]; });
-}
+/* Copy lives in the HTML now. Edit the words directly in the .html files and they
+   stick — the old data-vary system was removed so nothing overwrites your edits. */
 
 /* ============================================================
    BOOT
    ============================================================ */
 const page=document.body.dataset.page||'home';
 renderChrome(page);
-applyVariants();
 initBackToTop();
 initNavScroll();
 if(page==='home') initHome();

@@ -159,11 +159,30 @@ footer{padding:72px 0 44px;border-top:1px solid var(--line-2);background:#1d1d1c
 .hero .cta-row{display:flex;gap:16px;margin-top:40px;flex-wrap:wrap}
 
 /* live watch focal */
-.livewatch{position:relative;display:flex;flex-direction:column;align-items:center;gap:22px}
-.livewatch__face{position:relative;width:min(440px,86%);aspect-ratio:1/1;display:grid;place-items:center}
-.livewatch__face::before{content:"";position:absolute;inset:6%;border-radius:50%;
-  background:radial-gradient(circle,rgba(137,140,121,.16),transparent 66%);filter:blur(26px)}
-.livewatch__face svg{width:100%;height:auto;filter:drop-shadow(0 40px 60px rgba(0,0,0,.55))}
+.livewatch{position:relative;display:flex;flex-direction:column;align-items:center;gap:22px;perspective:1200px}
+.livewatch__face{position:relative;width:min(440px,86%);aspect-ratio:1/1;display:grid;place-items:center;
+  transform-style:preserve-3d;transition:transform .55s var(--ease);will-change:transform}
+.livewatch__face::before{content:"";position:absolute;inset:6%;border-radius:50%;z-index:0;
+  background:radial-gradient(circle,rgba(137,140,121,.16),transparent 66%);filter:blur(26px);
+  animation:lwBreathe 6.5s var(--ease) infinite}
+@keyframes lwBreathe{0%,100%{opacity:.8;transform:scale(.99)}50%{opacity:1;transform:scale(1.05)}}
+.livewatch__face svg{position:relative;z-index:1;width:100%;height:auto;filter:drop-shadow(0 40px 60px rgba(0,0,0,.55))}
+/* periodic specular glint sweeping across the sapphire */
+.livewatch__glint{position:absolute;inset:4%;border-radius:50%;overflow:hidden;pointer-events:none;z-index:4;mix-blend-mode:screen}
+.livewatch__glint::before{content:"";position:absolute;top:-25%;left:-60%;width:45%;height:150%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.16),transparent);
+  transform:rotate(16deg);animation:lwGlint 8s var(--ease) infinite}
+@keyframes lwGlint{0%{left:-60%}16%{left:120%}100%{left:120%}}
+/* soft highlight that tracks the cursor across the glass (fades in on hover) */
+.livewatch__glare{position:absolute;inset:4%;border-radius:50%;pointer-events:none;z-index:5;opacity:0;
+  transition:opacity .5s ease;mix-blend-mode:screen;
+  background:radial-gradient(circle at var(--gx,50%) var(--gy,38%),rgba(255,255,255,.18),rgba(255,255,255,.05) 24%,transparent 52%)}
+.livewatch.lw-live .livewatch__glare{opacity:1}
+@media(prefers-reduced-motion:reduce){
+  .livewatch__face{transition:none}
+  .livewatch__face::before{animation:none}
+  .livewatch__glint::before{animation:none}
+}
 .livewatch__meta{display:flex;align-items:center;gap:18px}
 .livewatch__chip{font-family:var(--mono);font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted)}
 .livewatch__chip b{color:var(--gold);font-weight:500}
