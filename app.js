@@ -518,7 +518,7 @@ function footerHTML(){
       </div>
     </div>
     <div class="foot__bottom">
-      <small>© 2026 Timescapes LLC</small>
+      <small>© 2026 Timescapes LLC· Est. 2023</small>
       <small>Concept site · a front-end showcase</small>
     </div>
   </div>`;
