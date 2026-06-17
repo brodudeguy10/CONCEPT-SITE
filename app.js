@@ -490,10 +490,11 @@ function navHTML(page){
   const a=(href,label,key)=>`<a href="${href}" class="${(page===key||(key==='inventory'&&page==='watch'))?'active':''}">${label}</a>`;
   return `<div class="container nav__row">
     <a href="index.html" class="brand" aria-label="Timescapes home"><img src="assets/brand/icon-green.svg" alt="">Timescapes</a>
-    <nav class="nav__links" id="navLinks" aria-label="Primary">
+<nav class="nav__links" id="navLinks" aria-label="Primary">
       ${a('index.html','Home','home')}
       ${a('inventory.html','Our Watches','inventory')}
       ${a('owner.html','The Owner','owner')}
+      ${a('owner.html#contact','Contact','contact')}
     </nav>
     <div class="nav__cta">
       <a class="btn btn--gold" href="${EBAY}" target="_blank" rel="noopener">View on eBay ↗</a>
@@ -598,9 +599,10 @@ function initWatch(){
   const more=ourWatches().filter(x=>x.id!==w.id).slice(0,3);
   const soldTag = w.sold ? '<span class="sold-tag">Sold</span>' : '';
   const availDD = w.sold ? '<dd class="dd-sold">Sold</dd>' : '<dd class="dd-stock">Available now</dd>';
+ const contactHref = `owner.html?watch=${encodeURIComponent(w.brand+' '+w.name+' — Ref. '+w.ref)}#contact`;
   const cta = w.sold
-    ? `<a class="btn btn--ghost" href="inventory.html">See what's in stock →</a><button class="btn btn--ghost" id="openGallery">View gallery</button>`
-    : `<a class="btn btn--gold" href="${w.ebay}" target="_blank" rel="noopener">See it on eBay ↗</a><button class="btn btn--ghost" id="openGallery">View gallery</button>`;
+    ? `<a class="btn btn--ghost" href="inventory.html">See what's in stock →</a><a class="btn btn--ghost" href="${contactHref}">Ask about a similar piece</a><button class="btn btn--ghost" id="openGallery">View gallery</button>`
+    : `<a class="btn btn--gold" href="${w.ebay}" target="_blank" rel="noopener">See it on eBay ↗</a><a class="btn btn--ghost" href="${contactHref}">Contact about this watch</a><button class="btn btn--ghost" id="openGallery">View gallery</button>`;
   root.innerHTML=`
   <section class="detail${w.sold?' detail--sold':''}"><div class="container">
     <a class="detail__back" href="inventory.html">← Back to all watches</a>
