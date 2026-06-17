@@ -12,15 +12,72 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Mulish:ital,wght@0,400;0,500;0,600;0,700;1,500&display=swap" rel="stylesheet">
 <link rel="icon" href="assets/brand/icon-green.svg">
-<link rel="stylesheet" href="styles.css?v=6">
-<script defer src="app.js?v=6"></script>
+<link rel="stylesheet" href="styles.css?v=7">
+<script defer src="app.js?v=7"></script>
+
+<style>
+  /* Hero Center Align */
+  .owner-hero__inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    height: 100%;
+  }
+
+  /* Editorial Story Centering */
+  .owner-bio__grid {
+    display: block !important; /* Overrides default asymmetrical layout grids */
+    max-width: 760px;          /* Perfectly balances text width for readability */
+    margin: 0 auto;
+    text-align: center;
+    padding: clamp(60px, 8vw, 100px) 20px;
+  }
+
+  .owner-bio__grid p {
+    font-size: clamp(16px, 2.2vw, 18px);
+    line-height: 1.85;
+    color: var(--ink-soft, #c9cbc5);
+    margin-top: 24px;
+    text-align: center;
+    text-wrap: balance;        /* Keeps line breaks looking clean and premium */
+  }
+
+  .owner-bio__grid .cta-row {
+    justify-content: center !important;
+    margin-top: 40px !important;
+  }
+
+  /* Brand Film Centering */
+  .film__inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    justify-content: center;
+  }
+
+  .film__inner h2.display {
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .film__inner p {
+    max-width: 580px;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+    margin-bottom: 32px;
+  }
+</style>
 </head>
 <body data-page="owner">
 
 <header class="nav" data-nav></header>
 
 <main>
-  <!-- owner hero -->
   <section class="owner-hero">
     <div class="owner-hero__bg">
       <video src="assets/car.mp4" autoplay muted loop playsinline preload="auto" data-auto aria-hidden="true"></video>
@@ -32,7 +89,6 @@
     </div>
   </section>
 
-  <!-- bio + credibility -->
   <section class="owner-bio">
     <div class="container owner-bio__grid">
       <div>
@@ -40,14 +96,13 @@
         <p data-reveal data-delay="1">Anthony's path to TimeScapes didn’t start behind a jewelry counter. It started with a lifelong pull toward things built with purpose: watches, cars, bikes, tools, and the details most people miss. After the Navy, a career in cybersecurity, and years of collecting, watches became more than another interest. They became markers of work, risk, wins, hard resets, and the moments people finally let themselves enjoy what they’ve earned. TimeScapes was built from that belief, with clean pieces, real meaning, and no need to make the moment feel fake.</p>
         <div class="creds" data-reveal data-delay="2">
         </div>
-        <div class="cta-row" style="margin-top:30px" data-reveal data-delay="3">
+        <div class="cta-row" data-reveal data-delay="3">
           <a class="btn btn--ghost" href="https://www.instagram.com/ardevas09/" target="_blank" rel="noopener">Follow along on Instagram ↗</a>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- brand film -->
   <section class="film">
     <div class="film__bg" id="filmBg">
       <video src="assets/brand-film.mp4" muted loop playsinline preload="metadata" data-auto aria-hidden="true"></video>
