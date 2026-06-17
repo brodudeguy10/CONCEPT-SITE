@@ -499,36 +499,36 @@ footer{padding:72px 0 44px;border-top:1px solid var(--line-2);background:#1d1d1c
 @media(prefers-reduced-motion:reduce){ .dial-sheen{animation:none} }
 ```css
 /* ============================================================
-   WHY WONT THIS FUCKING WORK
+   PISSING ME OFF
    ============================================================ */
-.proof-grid {
+.ts-client-metrics {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 20px;
   margin: 32px 0;
   padding: 24px 0;
-  border-top: 1px solid var(--line);
-  border-bottom: 1px solid var(--line);
-  max-width: 420px; /* Keeps it tight and locked to the left column */
+  border-top: 1px solid var(--line, rgba(240,241,243,.12));
+  border-bottom: 1px solid var(--line, rgba(240,241,243,.12));
+  max-width: 380px; /* Locks block inside the text column bounds */
 }
 
-.proof-grid > div {
+.ts-metric-item {
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
 
-.proof-val {
+.ts-metric-val {
   font-family: 'Macaria', serif;
-  font-size: clamp(24px, 3vw, 28px);
-  color: var(--ink);
+  font-size: 26px;
+  color: var(--ink, #f0f1f3);
   line-height: 1;
 }
 
-.proof-lbl {
+.ts-metric-lbl {
   font-family: var(--mono, monospace);
   font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.15em;
-  color: var(--ink-soft);
+  color: var(--ink-soft, #c9cbc5);
 }
