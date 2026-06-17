@@ -12,69 +12,55 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Mulish:ital,wght@0,400;0,500;0,600;0,700;1,500&display=swap" rel="stylesheet">
 <link rel="icon" href="assets/brand/icon-green.svg">
-<link rel="stylesheet" href="styles.css?v=8">
-<script defer src="app.js?v=8"></script>
+<link rel="stylesheet" href="styles.css?v=9">
+<script defer src="app.js?v=9"></script>
 
 <style>
-  /* Premium dashboard row for metrics */
-  .ts-client-metrics {
-    display: grid !important;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 16px;
-    margin: 40px 0 !important;
-    border-top: 1px solid var(--line, rgba(240,241,243,.08));
-    border-bottom: 1px solid var(--line, rgba(240,241,243,.08));
-    padding: 24px 0 !important;
-    max-width: 580px;
+  /* trust metrics — home closer (page-specific; loads after styles.css, wins on source order) */
+  .ts-client-metrics{
+    display:grid;grid-template-columns:repeat(4,1fr);
+    max-width:560px;margin:36px 0;padding:22px 0;
+    border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+  }
+  .ts-metric-item{
+    display:flex;flex-direction:column;gap:8px;
+    padding:0 22px;border-left:1px solid var(--line-2);
+  }
+  .ts-metric-item:first-child{padding-left:0;border-left:none}
+  .ts-metric-lbl{
+    font-family:var(--mono);font-size:10px;font-weight:500;
+    letter-spacing:.14em;text-transform:uppercase;color:var(--muted);line-height:1;
+  }
+  .ts-metric-val{
+    font-family:var(--serif);font-size:clamp(22px,2.4vw,26px);font-weight:500;
+    color:var(--ink);line-height:1;letter-spacing:-.01em;
+  }
+  /* clickable metrics link out to the real proof */
+  a.ts-metric-item{text-decoration:none;color:inherit;cursor:pointer;transition:transform .25s var(--ease)}
+  a.ts-metric-item .ts-metric-val{transition:color .25s}
+  a.ts-metric-item:hover .ts-metric-val{color:var(--gold-bright)}
+  a.ts-metric-item .ts-metric-lbl::after{content:" ↗";color:var(--gold);opacity:.75}
+  @media(max-width:560px){
+    .ts-client-metrics{grid-template-columns:repeat(2,1fr);gap:26px 0;max-width:none}
+    .ts-metric-item{padding:0 18px;border-left:1px solid var(--line-2)}
+    .ts-metric-item:nth-child(odd){padding-left:0;border-left:none}
   }
 
-  .ts-metric-item {
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: flex-start !important;
-    justify-content: flex-start;
-    border-right: 1px solid var(--line, rgba(240,241,243,.06));
-    padding-right: 12px;
-  }
-
-  /* Last item drops the right border line */
-  .ts-metric-item:last-child {
-    border-right: none !important;
-  }
-
-  /* Precision tracking on text labels */
-  .ts-metric-lbl {
-    font-family: var(--mono, monospace) !important;
-    font-size: 10px !important;
-    text-transform: uppercase !important;
-    letter-spacing: 0.14em !important;
-    color: var(--muted, #8f918a) !important;
-    margin-bottom: 8px !important;
-    line-height: 1 !important;
-    font-weight: 500;
-  }
-
-  /* High-end numeric rendering */
-  .ts-metric-val {
-    font-family: 'Macaria', sans-serif !important;
-    font-size: clamp(22px, 2.5vw, 26px) !important;
-    font-weight: 600 !important;
-    color: var(--ink, #f0f1f3) !important;
-    line-height: 1 !important;
-    letter-spacing: -0.02em !important;
-  }
-
-  /* Elegant responsive stacking for mobile devices */
-  @media (max-width: 560px) {
-    .ts-client-metrics {
-      grid-template-columns: repeat(2, 1fr);
-      gap: 24px 16px;
-    }
-    .ts-metric-item {
-      border-right: none !important;
-      padding-right: 0;
-    }
-  }
+  /* verified feedback / reviews */
+  .reviews__grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:42px}
+  .review{display:flex;flex-direction:column;gap:18px;background:var(--bg-3);
+    border:1px solid var(--line-2);border-radius:10px;padding:26px 24px;margin:0;
+    transition:border-color .3s,transform .3s}
+  .review:hover{border-color:var(--line);transform:translateY(-3px)}
+  .review blockquote{font-size:15.5px;line-height:1.62;color:var(--ink);margin:0}
+  .review figcaption{display:flex;flex-direction:column;gap:6px;margin-top:auto}
+  .review__watch{font-family:var(--mono);font-size:10px;letter-spacing:.06em;color:var(--ink-soft);line-height:1.45}
+  .review__src{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--gold);display:flex;align-items:center;gap:.55em}
+  .review__src::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--gold);
+    box-shadow:0 0 0 3px rgba(137,140,121,.16);flex:0 0 auto}
+  @media(max-width:1000px){.reviews__grid{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:600px){.reviews__grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body data-page="home">
@@ -145,26 +131,83 @@
     </div>
   </section>
 
+  <!-- verified feedback (real eBay + Grailzee reviews) -->
+  <section class="reviews">
+    <div class="container">
+      <div class="sec-head">
+        <div>
+          <span class="eyebrow" data-reveal>Verified Feedback</span>
+          <h2 class="display" data-reveal data-delay="1">What buyers say</h2>
+        </div>
+        <a class="more-link" href="https://www.ebay.com/str/timescapesllc?_tab=feedback" target="_blank" rel="noopener" data-reveal data-delay="2">Read all feedback ↗</a>
+      </div>
+      <div class="reviews__grid">
+        <figure class="review" data-reveal>
+          <blockquote>“The black black Seamaster is even more stunning than I thought it would be. Beautiful piece.”</blockquote>
+          <figcaption>
+            <span class="review__watch">Omega Seamaster Diver 300M “Black Black” · 210.92.44.20.01.003</span>
+            <span class="review__src">Grailzee · Verified sale</span>
+          </figcaption>
+        </figure>
+        <figure class="review" data-reveal data-delay="1">
+          <blockquote>“Great experience with TimeScapes! Watch arrived brand new in perfect condition with complete packaging… Definitely as described and great value. Also appreciated shipping was fast and he put it in the mail the next day. Thank you!”</blockquote>
+          <figcaption>
+            <span class="review__watch">Panerai Luminor · registered to warranty</span>
+            <span class="review__src">eBay · Verified purchase</span>
+          </figcaption>
+        </figure>
+        <figure class="review" data-reveal data-delay="2">
+          <blockquote>“The watch is incredible — arrived in perfect condition. Shipping was fast and the entire validation and ordering process was smooth and easy. Truly impressed!”</blockquote>
+          <figcaption>
+            <span class="review__watch">Tudor Black Bay 54 “Lagoon Blue” · 79000</span>
+            <span class="review__src">Grailzee · Verified sale</span>
+          </figcaption>
+        </figure>
+        <figure class="review" data-reveal>
+          <blockquote>“Smooth process. I would do business with this seller again.”</blockquote>
+          <figcaption>
+            <span class="review__watch">Omega Speedmaster 43mm · 329.30.43.51.02.002</span>
+            <span class="review__src">Grailzee · Verified sale</span>
+          </figcaption>
+        </figure>
+        <figure class="review" data-reveal data-delay="1">
+          <blockquote>“Item was as described!”</blockquote>
+          <figcaption>
+            <span class="review__watch">Omega Seamaster Diver 300M “James Bond” · 210.92.42.20.01.001</span>
+            <span class="review__src">Grailzee · Verified sale</span>
+          </figcaption>
+        </figure>
+        <figure class="review" data-reveal data-delay="2">
+          <blockquote>“Smooth transaction.”</blockquote>
+          <figcaption>
+            <span class="review__watch">Omega Speedmaster Two Counters · 311.93.44.51.03.001</span>
+            <span class="review__src">Grailzee · Verified sale</span>
+          </figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
   <section class="closer">
     <div class="container closer__grid">
       <div class="closer__copy">
         <span class="eyebrow" data-reveal>Find Yours</span>
         <h2 class="display" data-reveal data-delay="1">The right one<br>is <em class="accent">already here.</em></h2>
         <p class="lead" data-reveal data-delay="2">Shot up close, in real light, so the only surprise is how good it looks in person. Take your time. Browse what's in stock. When one stops you, it's a click away on eBay.</p>
-        
+
         <div class="ts-client-metrics" data-reveal data-delay="2">
           <div class="ts-metric-item">
             <span class="ts-metric-lbl">In Business</span>
             <span class="ts-metric-val">3 Yrs</span>
           </div>
-          <div class="ts-metric-item">
+          <a class="ts-metric-item" href="https://www.ebay.com/str/timescapesllc?_tab=feedback" target="_blank" rel="noopener">
             <span class="ts-metric-lbl">eBay Feedback</span>
             <span class="ts-metric-val">100%</span>
-          </div>
-          <div class="ts-metric-item">
+          </a>
+          <a class="ts-metric-item" href="https://grailzee.com/apps/auctioneer/members/6018082144388" target="_blank" rel="noopener">
             <span class="ts-metric-lbl">Grailzee</span>
             <span class="ts-metric-val">100%</span>
-          </div>
+          </a>
           <div class="ts-metric-item">
             <span class="ts-metric-lbl">Google Review</span>
             <span class="ts-metric-val">5.0 ★</span>

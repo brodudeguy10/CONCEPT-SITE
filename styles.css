@@ -497,38 +497,9 @@ footer{padding:72px 0 44px;border-top:1px solid var(--line-2);background:#1d1d1c
 .dial-sheen{transform-box:fill-box;transform-origin:center;animation:dialSweep 18s linear infinite;will-change:transform}
 @keyframes dialSweep{to{transform:rotate(360deg)}}
 @media(prefers-reduced-motion:reduce){ .dial-sheen{animation:none} }
-```css
-/* ============================================================
-   PISSING ME OFF
-   ============================================================ */
-.ts-client-metrics {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 20px;
-  margin: 32px 0;
-  padding: 24px 0;
-  border-top: 1px solid var(--line, rgba(240,241,243,.12));
-  border-bottom: 1px solid var(--line, rgba(240,241,243,.12));
-  max-width: 380px; /* Locks block inside the text column bounds */
-}
 
-.ts-metric-item {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.ts-metric-val {
-  font-family: 'Macaria', serif;
-  font-size: 26px;
-  color: var(--ink, #f0f1f3);
-  line-height: 1;
-}
-
-.ts-metric-lbl {
-  font-family: var(--mono, monospace);
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.15em;
-  color: var(--ink-soft, #c9cbc5);
-}
+/* ============ footer trust line ============ */
+.foot__trust{display:flex;align-items:center;gap:.6em;margin-top:14px;
+  font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--ink-soft)}
+.foot__trust-dot{width:7px;height:7px;border-radius:50%;background:var(--gold);
+  box-shadow:0 0 0 3px rgba(137,140,121,.18);flex:0 0 auto}

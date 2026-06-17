@@ -12,88 +12,54 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Mulish:ital,wght@0,400;0,500;0,600;0,700;1,500&display=swap" rel="stylesheet">
 <link rel="icon" href="assets/brand/icon-green.svg">
-<link rel="stylesheet" href="styles.css?v=7">
-<script defer src="app.js?v=7"></script>
+<link rel="stylesheet" href="styles.css?v=9">
+<script defer src="app.js?v=9"></script>
 
 <style>
-  /* Force perfect absolute centering across hero elements */
-  .owner-hero__inner {
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    justify-content: center !important;
-    text-align: center !important;
-    height: 100%;
+  /* Owner page — page-specific layout only.
+     Loaded after styles.css, so these win on source order. No !important needed. */
+
+  /* hero: center the title block over the car video */
+  .owner-hero__inner{
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;height:100%;
   }
 
-  /* Full-Width Luxury Editorial Layout Centering */
-  .owner-bio__grid {
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    justify-content: center !important;
-    text-align: center !important;
-    max-width: 960px !important; /* Opens up the text bounds elegantly */
-    margin: 0 auto !important;
-    padding: clamp(80px, 10vw, 140px) 24px !important;
+  /* ---- The Story: editorial treatment ----
+     No photo of Anthony exists, so the type carries the section:
+     a big LEDE line as the anchor, a readable body at a narrow measure,
+     and a signed name as the human "portrait". */
+  .owner-bio__grid{
+    display:flex;flex-direction:column;align-items:center;text-align:center;
+    max-width:760px;margin:0 auto;padding:var(--section) 24px;
+  }
+  .owner-bio__grid .story{display:flex;flex-direction:column;align-items:center;width:100%}
+
+  .story__lede{
+    font-family:var(--serif);font-weight:500;
+    font-size:clamp(25px,3.4vw,40px);line-height:1.12;letter-spacing:-.01em;
+    color:var(--ink);max-width:17em;margin-top:20px;text-wrap:balance;
+  }
+  .story__body{
+    font-size:clamp(16px,1.5vw,18px);line-height:1.75;color:var(--ink-soft);
+    max-width:30em;margin-top:26px;text-wrap:pretty;
   }
 
-  .owner-bio__grid > div {
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    text-align: center !important;
-    width: 100% !important;
+  .story__sign{display:flex;flex-direction:column;align-items:center;gap:20px;margin-top:44px}
+  .story__rule{width:46px;height:1px;background:var(--gold-line)}
+  .story__name{
+    font-family:var(--serif);font-style:italic;font-weight:500;
+    font-size:clamp(26px,3vw,34px);color:var(--ink);letter-spacing:.01em;line-height:1;
   }
 
-  /* Massive Luxury Typography Scale Override */
-  .owner-bio__grid p {
-    font-size: clamp(22px, 2.8vw, 28px) !important; /* No longer tiny; bold and high-end */
-    line-height: 1.65 !important;
-    color: var(--ink, #f0f1f3) !important; /* High contrast luxury visibility */
-    font-weight: 400 !important;
-    margin-top: 32px !important;
-    margin-bottom: 0 !important;
-    text-align: center !important;
-    max-width: 860px !important;
-    text-wrap: balance !important;
-    letter-spacing: -0.01em !important;
+  /* brand film: keep the centered cinematic layout */
+  .film__inner{
+    display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
   }
-
-  .owner-bio__grid .eyebrow {
-    margin-bottom: 8px !important;
-  }
-
-  .owner-bio__grid .cta-row {
-    display: flex !important;
-    justify-content: center !important;
-    align-items: center !important;
-    margin-top: 48px !important;
-    width: 100% !important;
-  }
-
-  /* Cinematic Brand Film Center Alignment */
-  .film__inner {
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    text-align: center !important;
-    justify-content: center !important;
-  }
-
-  .film__inner h2.display {
-    text-align: center !important;
-    margin-left: auto !important;
-    margin-right: auto !important;
-  }
-
-  .film__inner p {
-    max-width: 620px !important;
-    margin-left: auto !important;
-    margin-right: auto !important;
-    text-align: center !important;
-    margin-bottom: 36px !important;
-    font-size: clamp(16px, 2vw, 18px) !important;
+  .film__inner h2.display{margin-left:auto;margin-right:auto}
+  .film__inner p{
+    max-width:620px;margin-left:auto;margin-right:auto;margin-bottom:36px;
+    font-size:clamp(16px,2vw,18px);
   }
 </style>
 </head>
@@ -115,12 +81,13 @@
 
   <section class="owner-bio">
     <div class="container owner-bio__grid">
-      <div>
-        <span class="eyebrow" data-reveal>The Story</span>
-        <p data-reveal data-delay="1">Anthony's path to TimeScapes didn’t start behind a jewelry counter. It started with a lifelong pull toward things built with purpose: watches, cars, bikes, tools, and the details most people miss. After the Navy, a career in cybersecurity, and years of collecting, watches became more than another interest. They became markers of work, risk, wins, hard resets, and the moments people finally let themselves enjoy what they’ve earned. TimeScapes was built from that belief, with clean pieces, real meaning, and no need to make the moment feel fake.</p>
-        <div class="creds" data-reveal data-delay="2">
-        </div>
-        <div class="cta-row" data-reveal data-delay="3">
+      <div class="story">
+        <span class="eyebrow center" data-reveal>The Story</span>
+        <p class="story__lede" data-reveal data-delay="1">Anthony’s path to TimeScapes didn’t start behind a jewelry counter.</p>
+        <p class="story__body" data-reveal data-delay="2">It started with a lifelong pull toward things built with purpose: watches, cars, bikes, tools, and the details most people miss. After the Navy, a career in cybersecurity, and years of collecting, watches became more than another interest. They became markers of work, risk, wins, hard resets, and the moments people finally let themselves enjoy what they’ve earned. TimeScapes was built from that belief — clean pieces, real meaning, and no need to make the moment feel fake.</p>
+        <div class="story__sign" data-reveal data-delay="3">
+          <span class="story__rule"></span>
+          <p class="story__name">Anthony Savedra</p>
           <a class="btn btn--ghost" href="https://www.instagram.com/ardevas09/" target="_blank" rel="noopener">Follow along on Instagram ↗</a>
         </div>
       </div>
@@ -134,7 +101,7 @@
     <div class="container film__inner">
       <span class="eyebrow center" data-reveal>The Brand Film</span>
       <h2 class="display" data-reveal data-delay="1">Watches and horsepower.<br><em class="accent">Same obsession.</em></h2>
-      <p data-reveal data-delay="2">The same eye that picks the watches shows up in everything else he cares about. Hit play. This one's about the brand, and the obsession behind it.</p>
+      <p data-reveal data-delay="2">The same eye that picks the watches shows up in everything else he cares about. Hit play. This one’s about the brand, and the obsession behind it.</p>
       <button class="film__play" id="filmPlay" data-reveal data-delay="3"><span class="pp">▶</span> Play with sound</button>
     </div>
   </section>
