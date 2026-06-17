@@ -61,6 +61,30 @@
     max-width:620px;margin-left:auto;margin-right:auto;margin-bottom:36px;
     font-size:clamp(16px,2vw,18px);
   }
+
+  /* ---- Contact: direct-to-owner form ---- */
+  .contact{padding:var(--section) 0;border-top:1px solid var(--line-2)}
+  .contact__grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(40px,6vw,80px);align-items:start;text-align:left}
+  .contact__intro h2{margin:14px 0 0}
+  .contact__intro p{font-size:clamp(16px,1.6vw,18px);line-height:1.7;color:var(--ink-soft);max-width:34em;margin-top:22px}
+  .contact__alts{display:flex;flex-wrap:wrap;gap:22px;margin-top:28px}
+  .contact__alts a{font-family:var(--mono);font-size:12px;letter-spacing:.04em;color:var(--gold);transition:opacity .2s}
+  .contact__alts a:hover{opacity:.65}
+  .contact__form{display:flex;flex-direction:column;gap:16px}
+  .contact__form label{display:flex;flex-direction:column;gap:8px;font-family:var(--mono);
+    font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+  .contact__form input,.contact__form textarea{
+    font-family:var(--sans);font-size:15px;color:var(--ink);background:var(--bg-3);
+    border:1px solid var(--line-2);border-radius:8px;padding:13px 15px;width:100%;
+    transition:border-color .2s,background .2s;resize:vertical}
+  .contact__form input:focus,.contact__form textarea:focus{outline:none;border-color:var(--gold);background:#20201d}
+  .contact__form button{margin-top:6px;align-self:flex-start}
+  .contact__hp{position:absolute!important;left:-9999px;width:1px;height:1px;opacity:0;pointer-events:none}
+  .contact__status{font-family:var(--mono);font-size:12px;letter-spacing:.03em;margin:0;min-height:1.2em}
+  .contact__status.sending{color:var(--muted)}
+  .contact__status.ok{color:var(--gold)}
+  .contact__status.err{color:#cc9a86}
+  @media(max-width:820px){.contact__grid{grid-template-columns:1fr;gap:40px}}
 </style>
 </head>
 <body data-page="owner">
@@ -84,7 +108,7 @@
       <div class="story">
         <span class="eyebrow center" data-reveal>The Story</span>
         <p class="story__lede" data-reveal data-delay="1">Anthony’s path to TimeScapes didn’t start behind a jewelry counter.</p>
-        <p class="story__body" data-reveal data-delay="2">It started with a lifelong pull toward things built with purpose: watches, cars, bikes, tools, and the details most people miss. After the Navy, a career in cybersecurity, and years of collecting, watches became more than another interest. They became markers of work, risk, wins, hard resets, and the moments people finally let themselves enjoy what they’ve earned. TimeScapes was built from that belief, with clean pieces, real meaning, and no need to make the moment feel fake.</p>
+        <p class="story__body" data-reveal data-delay="2">It started with a lifelong pull toward things built with purpose: watches, cars, bikes, tools, and the details most people miss. After the Navy, a career in cybersecurity, and years of collecting, watches became more than another interest. They became markers of work, risk, wins, hard resets, and the moments people finally let themselves enjoy what they’ve earned. TimeScapes was built from that belief — clean pieces, real meaning, and no need to make the moment feel fake.</p>
         <div class="story__sign" data-reveal data-delay="3">
           <span class="story__rule"></span>
           <p class="story__name">Anthony Savedra</p>
@@ -105,8 +129,64 @@
       <button class="film__play" id="filmPlay" data-reveal data-delay="3"><span class="pp">▶</span> Play with sound</button>
     </div>
   </section>
+
+  <!-- direct contact (form emails Anthony via Web3Forms — no backend needed) -->
+  <section class="contact" id="contact">
+    <div class="container contact__grid">
+      <div class="contact__intro">
+        <span class="eyebrow" data-reveal>Get in touch</span>
+        <h2 class="display" data-reveal data-delay="1">Skip the middleman.</h2>
+        <p data-reveal data-delay="2">Rather deal direct? Message Anthony about any piece, availability, condition, price, or maybe just something specific you're hunting for. No third-party, no filler, straight to the inbox.</p>
+        <div class="contact__alts" data-reveal data-delay="3">
+          <a href="https://www.instagram.com/ardevas09/" target="_blank" rel="noopener">DM @ardevas09 ↗</a>
+          <a href="https://www.ebay.com/str/timescapesllc?widget_ver=artemis&media=COPY&utm_source=ig&utm_medium=social&utm_content=link_in_bio" target="_blank" rel="noopener">Browse on eBay ↗</a>
+        </div>
+      </div>
+      <form class="contact__form" id="contactForm" data-reveal data-delay="1">
+        <input type="hidden" name="access_key" value="aa47b3a4-65e9-4d7d-9bf2-e2322eff255a">
+        <input type="hidden" name="subject" value="New inquiry from the Timescapes site">
+        <input type="hidden" name="from_name" value="Timescapes Website">
+        <input type="hidden" name="watch" id="contactWatch" value="">
+        <input type="checkbox" name="botcheck" class="contact__hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+        <label>Name<input type="text" name="name" required autocomplete="name"></label>
+        <label>Email<input type="email" name="email" required autocomplete="email"></label>
+        <label>Phone (optional)<input type="tel" name="phone" autocomplete="tel"></label>
+        <label>Message<textarea name="message" rows="5" required></textarea></label>
+        <button type="submit" class="btn btn--gold">Send message →</button>
+        <p class="contact__status" id="contactStatus" role="status" aria-live="polite"></p>
+      </form>
+    </div>
+  </section>
 </main>
 
 <footer data-footer></footer>
+
+<script>
+/* Contact form — posts to Web3Forms (static-site friendly, no backend).
+   Prefills the watch when arriving from a watch page (owner.html?watch=...). */
+(function(){
+  var form=document.getElementById('contactForm'); if(!form) return;
+  var statusEl=document.getElementById('contactStatus');
+  var w=new URLSearchParams(location.search).get('watch');
+  if(w){
+    var hid=document.getElementById('contactWatch'); if(hid) hid.value=w;
+    var subj=form.querySelector('[name=subject]'); if(subj) subj.value='Inquiry: '+w;
+    var msg=form.querySelector('[name=message]'); if(msg && !msg.value) msg.value='Hi Anthony, I\u2019m interested in the '+w+'. ';
+  }
+  form.addEventListener('submit',function(e){
+    e.preventDefault();
+    var btn=form.querySelector('button[type=submit]');
+    statusEl.textContent='Sending\u2026'; statusEl.className='contact__status sending'; btn.disabled=true;
+    fetch('https://api.web3forms.com/submit',{method:'POST',headers:{'Accept':'application/json'},body:new FormData(form)})
+      .then(function(r){return r.json();})
+      .then(function(data){
+        if(data&&data.success){ form.reset();
+          statusEl.textContent='Message sent. Anthony will get back to you shortly.'; statusEl.className='contact__status ok'; }
+        else { statusEl.textContent='Something went wrong \u2014 please try again, or DM @ardevas09.'; statusEl.className='contact__status err'; btn.disabled=false; }
+      })
+      .catch(function(){ statusEl.textContent='Network error \u2014 please try again, or DM @ardevas09.'; statusEl.className='contact__status err'; btn.disabled=false; });
+  });
+})();
+</script>
 </body>
 </html>
