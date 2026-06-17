@@ -12,8 +12,70 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Mulish:ital,wght@0,400;0,500;0,600;0,700;1,500&display=swap" rel="stylesheet">
 <link rel="icon" href="assets/brand/icon-green.svg">
-<link rel="stylesheet" href="styles.css?v=7">
-<script defer src="app.js?v=7"></script>
+<link rel="stylesheet" href="styles.css?v=8">
+<script defer src="app.js?v=8"></script>
+
+<style>
+  /* Premium dashboard row for metrics */
+  .ts-client-metrics {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin: 40px 0 !important;
+    border-top: 1px solid var(--line, rgba(240,241,243,.08));
+    border-bottom: 1px solid var(--line, rgba(240,241,243,.08));
+    padding: 24px 0 !important;
+    max-width: 580px;
+  }
+
+  .ts-metric-item {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    justify-content: flex-start;
+    border-right: 1px solid var(--line, rgba(240,241,243,.06));
+    padding-right: 12px;
+  }
+
+  /* Last item drops the right border line */
+  .ts-metric-item:last-child {
+    border-right: none !important;
+  }
+
+  /* Precision tracking on text labels */
+  .ts-metric-lbl {
+    font-family: var(--mono, monospace) !important;
+    font-size: 10px !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.14em !important;
+    color: var(--muted, #8f918a) !important;
+    margin-bottom: 8px !important;
+    line-height: 1 !important;
+    font-weight: 500;
+  }
+
+  /* High-end numeric rendering */
+  .ts-metric-val {
+    font-family: 'Macaria', sans-serif !important;
+    font-size: clamp(22px, 2.5vw, 26px) !important;
+    font-weight: 600 !important;
+    color: var(--ink, #f0f1f3) !important;
+    line-height: 1 !important;
+    letter-spacing: -0.02em !important;
+  }
+
+  /* Elegant responsive stacking for mobile devices */
+  @media (max-width: 560px) {
+    .ts-client-metrics {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px 16px;
+    }
+    .ts-metric-item {
+      border-right: none !important;
+      padding-right: 0;
+    }
+  }
+</style>
 </head>
 <body data-page="home">
 
@@ -92,20 +154,20 @@
         
         <div class="ts-client-metrics" data-reveal data-delay="2">
           <div class="ts-metric-item">
-            <span class="ts-metric-val">3 Years</span>
             <span class="ts-metric-lbl">In Business</span>
+            <span class="ts-metric-val">3 Yrs</span>
           </div>
           <div class="ts-metric-item">
-            <span class="ts-metric-val">100%</span>
             <span class="ts-metric-lbl">eBay Feedback</span>
-          </div>
-          <div class="ts-metric-item">
             <span class="ts-metric-val">100%</span>
-            <span class="ts-metric-lbl">Grailzee</span>
           </div>
           <div class="ts-metric-item">
-            <span class="ts-metric-val" style="color: var(--muted, #8f918a);">5.0 ★</span>
+            <span class="ts-metric-lbl">Grailzee</span>
+            <span class="ts-metric-val">100%</span>
+          </div>
+          <div class="ts-metric-item">
             <span class="ts-metric-lbl">Google Review</span>
+            <span class="ts-metric-val">5.0 ★</span>
           </div>
         </div>
 
