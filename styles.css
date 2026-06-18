@@ -167,7 +167,7 @@ footer{padding:72px 0 44px;border-top:1px solid var(--line-2);background:#1d1d1c
 /* live watch focal */
 .livewatch{position:relative;display:flex;flex-direction:column;align-items:center;gap:22px;perspective:1200px}
 .livewatch__face{position:relative;width:min(440px,86%);aspect-ratio:1/1;display:grid;place-items:center;
-  transform-style:preserve-3d;transition:transform .55s var(--ease);will-change:transform}
+  transition:transform .55s var(--ease)}
 .livewatch__face::before{content:"";position:absolute;inset:6%;border-radius:50%;z-index:0;
   background:radial-gradient(circle,rgba(137,140,121,.16),transparent 66%);filter:blur(26px);
   animation:lwBreathe 6.5s var(--ease) infinite}
@@ -496,7 +496,7 @@ footer{padding:72px 0 44px;border-top:1px solid var(--line-2);background:#1d1d1c
 #inventoryGrid{transition:opacity .3s var(--ease)}
 @media(prefers-reduced-motion:reduce){ .btn--gold::after{display:none} }
 /* live watch: slow light sweep across the dial (the "real watch under moving light" look) */
-.dial-sheen{transform-box:fill-box;transform-origin:center;animation:dialSweep 18s linear infinite;will-change:transform}
+.dial-sheen{transform-box:fill-box;transform-origin:center;animation:dialSweep 18s linear infinite}
 @keyframes dialSweep{to{transform:rotate(360deg)}}
 @media(prefers-reduced-motion:reduce){ .dial-sheen{animation:none} }
 
