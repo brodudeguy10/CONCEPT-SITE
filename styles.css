@@ -92,13 +92,15 @@ em.accent{font-style:italic;color:transparent;
   background:linear-gradient(120deg,var(--gold-bright),var(--gold-deep));-webkit-background-clip:text;background-clip:text}
 
 /* one allowed shimmer: a slow, subtle glint sweeping the single hero word */
-em.accent.shimmer{
-  background:linear-gradient(100deg,
-    var(--gold-deep) 0%, var(--gold) 30%, var(--gold-bright) 45%,
-    #eef0e6 50%, var(--gold-bright) 55%, var(--gold) 70%, var(--gold-deep) 100%);
-  background-size:200% auto;
-  -webkit-background-clip:text;background-clip:text;color:transparent;
-  animation:shine 5.5s linear infinite}
+@media (prefers-reduced-motion: no-preference) {
+  em.accent.shimmer{
+    background:linear-gradient(100deg,
+      var(--gold-deep) 0%, var(--gold) 30%, var(--gold-bright) 45%,
+      #eef0e6 50%, var(--gold-bright) 55%, var(--gold) 70%, var(--gold-deep) 100%);
+    background-size:200% auto;
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    animation:shine 5.5s linear infinite}
+}
 @keyframes shine{from{background-position:0% center}to{background-position:-200% center}}
 
 /* ---------- reveal on scroll (the one ambient effect, refined + slow) ---------- */

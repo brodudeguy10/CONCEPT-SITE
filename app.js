@@ -49,10 +49,19 @@ const ALLFEED=feedImages();
 let _revObs;
 function observeReveals(root){
   if(REDUCE){ $$('[data-reveal]',root||document).forEach(el=>el.classList.add('in')); return; }
+  const els = $$('[data-reveal]',root||document);
+  // Immediately mark elements that are already visible
+  els.forEach(el => {
+    const rect = el.getBoundingClientRect();
+    if (rect.top < window.innerHeight && rect.bottom > 0) {
+      el.classList.add('in');
+    }
+  });
+  // Observe the rest
   if(!_revObs) _revObs=new IntersectionObserver((es)=>es.forEach(en=>{
     if(en.isIntersecting){ en.target.classList.add('in'); _revObs.unobserve(en.target); }
   }),{threshold:.14, rootMargin:'0px 0px -7% 0px'});
-  $$('[data-reveal]',root||document).forEach(el=>{ if(!el.classList.contains('in')) _revObs.observe(el); });
+  els.forEach(el=>{ if(!el.classList.contains('in')) _revObs.observe(el); });
 }
 
 /* ---------------- number counters ---------------- */
@@ -93,7 +102,7 @@ function buildSpinViewer(el, watch, opts){
 
   el.innerHTML = `
     <div class="spin__frames">${urls.map((u,i)=>
-      `<img src="${u}" alt="${watch.brand} ${watch.name}, angle ${i+1} of ${N}" draggable="false" ${i===0?'':'loading="lazy"'}>`).join('')}</div>
+      `<img src="${u}" alt="${watch.brand} ${watch.name}, angle ${i+1} of ${N}" draggable="false" loading="eager">`).join('')}</div>
     <div class="spin__loupe"></div>
     <div class="spin__count" aria-live="polite">01 / ${String(N).padStart(2,'0')}</div>
     <div class="spin__nav">
@@ -293,6 +302,8 @@ function buildLiveWatch(faceEl, chipEl, toggleEl){
   function render(){
     const p=PAL[mode];
     faceEl.innerHTML=watchSVG({id:'live',dial:p.dial,accent:p.accent,hands:p.hands,date:new Date().getDate(),sec:p.sec,lume:p.lume});
+    // Force a reflow to ensure the SVG is fully painted before the clock starts
+    faceEl.offsetHeight;
     hH=$('[data-h]',faceEl);mH=$('[data-m]',faceEl);sH=$('[data-s]',faceEl);
     // hands: polished sword batons with a lume channel + a baked soft shadow (cheaper than a per-frame filter)
     const hp=`M ${C},${C-100} L ${C+5},${C-84} L ${C+3.4},${C+20} L ${C-3.4},${C+20} L ${C-5},${C-84} Z`;
@@ -653,10 +664,16 @@ function initOwner(){
 function initImgFade(){
   if(REDUCE) return;
   $$('.card__media img, .feed__tile img, .gallery-strip img, .cmp img, .inv-banner img').forEach(img=>{
-    if(img.complete && img.naturalWidth>0) return;        // already loaded (cached) — leave visible
-    img.style.opacity='0'; img.style.transition='opacity .8s cubic-bezier(.22,.61,.30,1)';
-    const show=()=>{ img.style.opacity='1'; };
-    img.addEventListener('load',show,{once:true}); img.addEventListener('error',show,{once:true});
+    // If already loaded, ensure it's fully opaque (default is 1, but set explicitly)
+    if(img.complete && img.naturalWidth > 0) {
+      img.style.opacity = '1';
+      return;
+    }
+    img.style.opacity = '0';
+    img.style.transition = 'opacity .8s cubic-bezier(.22,.61,.30,1)';
+    const show = () => { img.style.opacity = '1'; };
+    img.addEventListener('load', show, {once: true});
+    img.addEventListener('error', show, {once: true});
   });
 }
 function initNavScroll(){
@@ -688,5 +705,10 @@ initImgFade();
    fired, e.g. a stalled render pipeline), un-hide everything so the page is
    never left blank. Timers run independently of the render lifecycle. */
 setTimeout(()=>{ if(!document.querySelector('[data-reveal].in')) document.documentElement.classList.add('reveal-fallback'); }, 1600);
+
+// Global error handler to catch any uncaught exceptions
+window.addEventListener('error', (e) => {
+  console.error('Global error:', e.error || e.message);
+});
 
 })();
