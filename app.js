@@ -50,18 +50,34 @@ let _revObs;
 function observeReveals(root){
   if(REDUCE){ $$('[data-reveal]',root||document).forEach(el=>el.classList.add('in')); return; }
   const els = $$('[data-reveal]',root||document);
-  // Immediately mark elements that are already visible
+  
+  // Immediately mark elements that are already fully or partially in view
   els.forEach(el => {
     const rect = el.getBoundingClientRect();
     if (rect.top < window.innerHeight && rect.bottom > 0) {
       el.classList.add('in');
     }
   });
-  // Observe the rest
-  if(!_revObs) _revObs=new IntersectionObserver((es)=>es.forEach(en=>{
-    if(en.isIntersecting){ en.target.classList.add('in'); _revObs.unobserve(en.target); }
-  }),{threshold:.14, rootMargin:'0px 0px -7% 0px'});
-  els.forEach(el=>{ if(!el.classList.contains('in')) _revObs.observe(el); });
+  
+  // Set up the intersection observer for everything else
+  // Note: We use a more forgiving rootMargin so elements start animating slightly before they enter the screen
+  if(!_revObs) {
+    _revObs = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if(entry.isIntersecting){ 
+          entry.target.classList.add('in'); 
+          _revObs.unobserve(entry.target); 
+        }
+      });
+    }, {threshold: 0.05, rootMargin: '0px 0px 50px 0px'}); // Changed -7% negative margin to a positive padding
+  }
+  
+  // Observe any elements that haven't been revealed yet
+  els.forEach(el => { 
+    if(!el.classList.contains('in')) {
+      _revObs.observe(el); 
+    } 
+  });
 }
 
 /* ---------------- number counters ---------------- */
