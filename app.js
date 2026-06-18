@@ -335,6 +335,26 @@ function buildLiveWatch(faceEl, chipEl, toggleEl){
       +`<circle cx="${C}" cy="${C-118}" r="5" fill="${p.sec}"/><circle cx="${C}" cy="${C-118}" r="2.2" fill="${p.lume}"/>`
       +`<circle cx="${C}" cy="${C+34}" r="6.5" fill="${p.sec}"/><circle cx="${C}" cy="${C+34}" r="2.3" fill="${shade(p.dial,-26)}"/>`;
     faceEl.appendChild(glint); faceEl.appendChild(glare);
+     // Force a repaint after the reveal transition to fix SVG gradient rendering
+if (!REDUCE) {
+  const revealParent = faceEl.closest('[data-reveal]');
+  if (revealParent) {
+    const handler = function onTransitionEnd(e) {
+      // Only act on opacity or transform transitions (the ones used by reveal)
+      if (e.propertyName === 'opacity' || e.propertyName === 'transform') {
+        // Force a layout recalculation – this triggers a fresh paint
+        faceEl.getBoundingClientRect();
+        revealParent.removeEventListener('transitionend', handler);
+      }
+    };
+    revealParent.addEventListener('transitionend', handler);
+    // Fallback in case transitionend never fires (safety net)
+    setTimeout(() => {
+      faceEl.getBoundingClientRect();
+      revealParent.removeEventListener('transitionend', handler);
+    }, 1500);
+  }
+}
   }
   render();
   function tick(){
