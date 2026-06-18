@@ -12,8 +12,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Mulish:ital,wght@0,400;0,500;0,600;0,700;1,500&display=swap" rel="stylesheet">
 <link rel="icon" href="assets/brand/icon-green.svg">
-<link rel="stylesheet" href="styles.css?v=20260618">
-<script defer src="app.js?v=20260618"></script>
+<link rel="stylesheet" href="styles.css?v=20260619">
+<script defer src="app.js?v=20260619"></script>
 
 <style>
   /* trust metrics — home closer (page-specific; loads after styles.css, wins on source order) */
@@ -228,5 +228,18 @@
 </main>
 
 <footer data-footer></footer>
+
+<script>
+/* one-time clean repaint after load — clears any leftover GPU paint glitch
+   before it's ever visible. imperceptible. */
+addEventListener('load',function(){
+  requestAnimationFrame(function(){
+    var el=document.scrollingElement||document.documentElement, y=el.scrollTop;
+    el.scrollTop=y+1; el.scrollTop=y;
+    document.body.style.opacity='0.999';
+    requestAnimationFrame(function(){ document.body.style.opacity=''; });
+  });
+});
+</script>
 </body>
 </html>
