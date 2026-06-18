@@ -741,6 +741,17 @@ initImgFade();
    fired, e.g. a stalled render pipeline), un-hide everything so the page is
    never left blank. Timers run independently of the render lifecycle. */
 setTimeout(()=>{ if(!document.querySelector('[data-reveal].in')) document.documentElement.classList.add('reveal-fallback'); }, 1600);
+   // --- FORCE REPAINT OF ALL GRADIENTS (fixes grey SVG + missing background/text gradients) ---
+if (!REDUCE) {
+  setTimeout(() => {
+    // Toggle a zero-impact style on the root to force a full layer rebuild
+    document.documentElement.style.transform = 'translateZ(0)';
+    // Force layout flush
+    void document.documentElement.offsetHeight;
+    // Remove it – the paint will stick
+    document.documentElement.style.transform = '';
+  }, 300);
+}
 
 // Global error handler to catch any uncaught exceptions
 window.addEventListener('error', (e) => {
