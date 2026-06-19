@@ -311,190 +311,80 @@ function watchSVG(o){
 }
 function buildLiveWatch(faceEl, chipEl, toggleEl){
   if(!faceEl) return;
-  var C=280, D=function(a){return a*Math.PI/180;}, F=function(n){return n.toFixed(1);};
-
-  // ---- sunburst ----
-  var sun='';
-  for(var i=0;i<280;i++){var a=i*(360/280),lt=i%2===0;
-    sun+='<line x1="'+F(C+Math.cos(D(a))*15)+'" y1="'+F(C+Math.sin(D(a))*15)+'" x2="'+F(C+Math.cos(D(a))*196)+'" y2="'+F(C+Math.sin(D(a))*196)+'" stroke="'+(lt?'#fff':'#000')+'" stroke-width="1.3" stroke-opacity="'+(lt?0.026:0.05)+'"/>';}
-
-  // ---- machined fluted bezel: fine facets ----
-  var flute='', Nf=84;
-  for(var f=0;f<Nf;f++){var a0=f*(360/Nf), a1=a0+(360/Nf)*0.86, ri=213, ro=253, lt2=f%2===0;
-    flute+='<path d="M '+F(C+Math.cos(D(a0))*ri)+' '+F(C+Math.sin(D(a0))*ri)+' L '+F(C+Math.cos(D(a0))*ro)+' '+F(C+Math.sin(D(a0))*ro)+' L '+F(C+Math.cos(D(a1))*ro)+' '+F(C+Math.sin(D(a1))*ro)+' L '+F(C+Math.cos(D(a1))*ri)+' '+F(C+Math.sin(D(a1))*ri)+' Z" fill="'+(lt2?'#e3e8eb':'#33373a')+'" fill-opacity="'+(lt2?0.42:0.5)+'"/>';}
-
-  // ---- minute track ----
-  var tk='';
-  for(var m=0;m<60;m++){var ma=m*6-90,five=m%5===0,rO=200,rI=five?186:193;
-    tk+='<line x1="'+F(C+Math.cos(D(ma))*rI)+'" y1="'+F(C+Math.sin(D(ma))*rI)+'" x2="'+F(C+Math.cos(D(ma))*rO)+'" y2="'+F(C+Math.sin(D(ma))*rO)+'" stroke="#cfd3c5" stroke-opacity="'+(five?0.92:0.42)+'" stroke-width="'+(five?2:1)+'" stroke-linecap="round"/>';}
-
-  // ---- raised applied indices (SLIMMED) ----
-  var idx='';
-  for(var h=0;h<12;h++){ if(h===3){continue;}
-    var ha=h*30-90, cx=C+Math.cos(D(ha))*166, cy=C+Math.sin(D(ha))*166;
-    if(h===0){
-      var ux=Math.cos(D(ha)),uy=Math.sin(D(ha)),px=-uy,py=ux;
-      var tx=cx-ux*3,ty=cy-uy*3, blx=cx+ux*16+px*10,bly=cy+uy*16+py*10, brx=cx+ux*16-px*10,bry=cy+uy*16-py*10;
-      idx+='<polygon points="'+F(tx+2)+','+F(ty+3.5)+' '+F(blx+2)+','+F(bly+3.5)+' '+F(brx+2)+','+F(bry+3.5)+'" fill="#000" opacity="0.6" filter="url(#blur2)"/>';
-      idx+='<polygon points="'+F(tx)+','+F(ty)+' '+F(blx)+','+F(bly)+' '+F(brx)+','+F(bry)+'" fill="url(#lume)" stroke="#e7ebed" stroke-width="1.5" class="lume"/>';
-    } else {
-      idx+='<g transform="rotate('+(ha+90)+' '+F(cx)+' '+F(cy)+')">';
-      idx+='<rect x="'+F(cx-5.5)+'" y="'+F(cy-10)+'" width="11" height="31" rx="2.5" fill="#000" opacity="0.5" filter="url(#blur2)"/>';
-      idx+='<rect x="'+F(cx-5.5)+'" y="'+F(cy-14)+'" width="11" height="30" rx="2.5" fill="url(#idxMetal)"/>';
-      idx+='<rect x="'+F(cx-3.5)+'" y="'+F(cy-12)+'" width="7" height="26" rx="1.8" fill="url(#lume)" class="lume"/>';
-      idx+='<rect x="'+F(cx-5.5)+'" y="'+F(cy-14)+'" width="11" height="2.2" rx="1.1" fill="#fff" fill-opacity="0.75"/>';
-      idx+='</g>';
-    }
+  const PAL={ day:{dial:'#262626',accent:'#9ba089',hands:'#e7e8ea',sec:'#898c79',lume:'#cdd0c2'},
+              lume:{dial:'#14170f',accent:'#aeb893',hands:'#d8ddca',sec:'#aebb8e',lume:'#c6d2a6'} };
+  let mode='day',hH,mH,sH; const C=200;
+  // light overlays that sit above the dial and survive every re-render
+  const glint=document.createElement('div'); glint.className='livewatch__glint'; glint.setAttribute('aria-hidden','true');
+  const glare=document.createElement('div'); glare.className='livewatch__glare'; glare.setAttribute('aria-hidden','true');
+  function render(){
+    const p=PAL[mode];
+    faceEl.innerHTML=watchSVG({id:'live',dial:p.dial,accent:p.accent,hands:p.hands,date:new Date().getDate(),sec:p.sec,lume:p.lume});
+    // Force a reflow to ensure the SVG is fully painted before the clock starts
+    faceEl.offsetHeight;
+    hH=$('[data-h]',faceEl);mH=$('[data-m]',faceEl);sH=$('[data-s]',faceEl);
+    // hands: polished sword batons with a lume channel + a baked soft shadow (cheaper than a per-frame filter)
+    const hp=`M ${C},${C-100} L ${C+5},${C-84} L ${C+3.4},${C+20} L ${C-3.4},${C+20} L ${C-5},${C-84} Z`;
+    const mp=`M ${C},${C-148} L ${C+4.2},${C-130} L ${C+2.8},${C+22} L ${C-2.8},${C+22} L ${C-4.2},${C-130} Z`;
+    hH.innerHTML=`<path d="${hp}" transform="translate(1.4,2.6)" fill="#000" opacity=".25"/>`
+      +`<path d="${hp}" fill="url(#gh-live)" stroke="#15120e" stroke-width=".5"/>`
+      +`<rect x="${C-2.6}" y="${C-84}" width="5.2" height="80" rx="2.6" fill="${p.lume}" opacity=".88"/>`;
+    mH.innerHTML=`<path d="${mp}" transform="translate(1.4,2.6)" fill="#000" opacity=".25"/>`
+      +`<path d="${mp}" fill="url(#gh-live)" stroke="#15120e" stroke-width=".5"/>`
+      +`<rect x="${C-2.2}" y="${C-128}" width="4.4" height="120" rx="2.2" fill="${p.lume}" opacity=".88"/>`;
+    sH.innerHTML=`<g transform="translate(1.2,2.4)" opacity=".2" fill="#000"><rect x="${C-1.1}" y="${C-150}" width="2.2" height="188" rx="1.1"/><circle cx="${C}" cy="${C+34}" r="6.5"/></g>`
+      +`<rect x="${C-1.1}" y="${C-150}" width="2.2" height="188" rx="1.1" fill="${p.sec}"/>`
+      +`<circle cx="${C}" cy="${C-118}" r="5" fill="${p.sec}"/><circle cx="${C}" cy="${C-118}" r="2.2" fill="${p.lume}"/>`
+      +`<circle cx="${C}" cy="${C+34}" r="6.5" fill="${p.sec}"/><circle cx="${C}" cy="${C+34}" r="2.3" fill="${shade(p.dial,-26)}"/>`;
+    faceEl.appendChild(glint); faceEl.appendChild(glare);
+     // Force a repaint after the reveal transition to fix SVG gradient rendering
+if (!REDUCE) {
+  const revealParent = faceEl.closest('[data-reveal]');
+  if (revealParent) {
+    const handler = function onTransitionEnd(e) {
+      // Only act on opacity or transform transitions (the ones used by reveal)
+      if (e.propertyName === 'opacity' || e.propertyName === 'transform') {
+        // Force a layout recalculation – this triggers a fresh paint
+        faceEl.getBoundingClientRect();
+        revealParent.removeEventListener('transitionend', handler);
+      }
+    };
+    revealParent.addEventListener('transitionend', handler);
+    // Fallback in case transitionend never fires (safety net)
+    setTimeout(() => {
+      faceEl.getBoundingClientRect();
+      revealParent.removeEventListener('transitionend', handler);
+    }, 1500);
   }
-
-  // ---- faceted dauphine/sword hands (slim) ----
-  function sword(L, hw, baseY, lumeF){
-    var tipY=C-L, shY=C-L*0.52, bY=C+baseY;
-    var left ='M '+C+' '+F(tipY)+' L '+F(C-hw)+' '+F(shY)+' L '+F(C-hw*0.4)+' '+F(bY)+' L '+C+' '+F(bY)+' Z';
-    var right='M '+C+' '+F(tipY)+' L '+F(C+hw)+' '+F(shY)+' L '+F(C+hw*0.4)+' '+F(bY)+' L '+C+' '+F(bY)+' Z';
-    var s='<path d="'+left+'" fill="url(#handLight)"/><path d="'+right+'" fill="url(#handDark)"/>';
-    s+='<line x1="'+C+'" y1="'+F(tipY)+'" x2="'+C+'" y2="'+F(bY)+'" stroke="#ffffff" stroke-opacity="0.55" stroke-width="0.8"/>';
-    var lw=hw*lumeF, lTipY=C-L*0.84, lShY=C-L*0.5, lbY=C+baseY*0.2;
-    var lume='M '+C+' '+F(lTipY)+' L '+F(C+lw)+' '+F(lShY)+' L '+F(C+lw*0.45)+' '+F(lbY)+' L '+F(C-lw*0.45)+' '+F(lbY)+' L '+F(C-lw)+' '+F(lShY)+' Z';
-    s+='<path d="'+lume+'" fill="url(#lume)" class="lume"/>';
-    return s;
+}
   }
-  var hourHand='<g id="lwHour" transform="rotate(0 280 280)">'+sword(124,7.5,15,0.55)+'</g>';
-  var minHand ='<g id="lwMin" transform="rotate(0 280 280)">'+sword(186,5.8,15,0.55)+'</g>';
-  var secHand ='<g id="lwSec" transform="rotate(0 280 280)">'
-    +'<rect x="278.4" y="92" width="3.2" height="160" fill="#c9472f"/>'
-    +'<circle cx="280" cy="150" r="10" fill="none" stroke="#c9472f" stroke-width="3.4"/>'
-    +'<circle cx="280" cy="150" r="6.2" fill="url(#lume)" class="lume"/>'
-    +'<rect x="276.4" y="290" width="7.2" height="46" rx="3.6" fill="#c9472f"/></g>';
-
-  // ---- crown ----
-  var crown='<g transform="translate(548 280)"><rect x="-7" y="-19" width="22" height="38" rx="3" fill="url(#crownG)"/>';
-  for(var k=0;k<8;k++){crown+='<rect x="'+F(-6+k*2.65)+'" y="-19" width="1.2" height="38" fill="#2a2d2f" opacity="0.55"/>';}
-  crown+='<rect x="-11" y="-10" width="6" height="20" rx="2" fill="url(#crownG)"/></g>';
-
-  var svg=''
-  +'<svg viewBox="0 0 560 560" xmlns="http://www.w3.org/2000/svg" aria-label="Live watch showing the current time">'
-  +'<defs>'
-    +'<radialGradient id="dialBase" cx="46%" cy="40%" r="66%"><stop offset="0%" stop-color="#2b2d29"/><stop offset="40%" stop-color="#181916"/><stop offset="78%" stop-color="#0a0b09"/><stop offset="100%" stop-color="#040503"/></radialGradient>'
-    +'<radialGradient id="dialLight" cx="33%" cy="26%" r="52%"><stop offset="0%" stop-color="#fff" stop-opacity="0.13"/><stop offset="55%" stop-color="#fff" stop-opacity="0.025"/><stop offset="100%" stop-color="#fff" stop-opacity="0"/></radialGradient>'
-    +'<radialGradient id="dialVig" cx="50%" cy="50%" r="50%"><stop offset="64%" stop-color="#000" stop-opacity="0"/><stop offset="92%" stop-color="#000" stop-opacity="0.4"/><stop offset="100%" stop-color="#000" stop-opacity="0.72"/></radialGradient>'
-    +'<linearGradient id="caseSteel" x1="0.12" y1="0" x2="0.9" y2="1"><stop offset="0%" stop-color="#f6f8f9"/><stop offset="19%" stop-color="#aeb4b8"/><stop offset="37%" stop-color="#5f656a"/><stop offset="53%" stop-color="#dfe3e6"/><stop offset="71%" stop-color="#787e82"/><stop offset="100%" stop-color="#2d3134"/></linearGradient>'
-    +'<radialGradient id="bezelSteel" cx="50%" cy="34%" r="64%"><stop offset="0%" stop-color="#d4d8db"/><stop offset="52%" stop-color="#7c8287"/><stop offset="84%" stop-color="#c6cbce"/><stop offset="100%" stop-color="#3f4346"/></radialGradient>'
-    +'<linearGradient id="idxMetal" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#eef2f5"/><stop offset="45%" stop-color="#a9afb3"/><stop offset="100%" stop-color="#777d81"/></linearGradient>'
-    +'<radialGradient id="lume" cx="50%" cy="42%" r="66%"><stop offset="0%" stop-color="#eef3df"/><stop offset="100%" stop-color="#bcc79e"/></radialGradient>'
-    +'<linearGradient id="handLight" x1="0" y1="0" x2="1" y2="0.3"><stop offset="0%" stop-color="#fafcfd"/><stop offset="55%" stop-color="#d4d9dd"/><stop offset="100%" stop-color="#aab0b4"/></linearGradient>'
-    +'<linearGradient id="handDark" x1="0" y1="0" x2="1" y2="0.3"><stop offset="0%" stop-color="#90979b"/><stop offset="50%" stop-color="#6b7175"/><stop offset="100%" stop-color="#44494d"/></linearGradient>'
-    +'<radialGradient id="cap" cx="40%" cy="34%" r="66%"><stop offset="0%" stop-color="#f5f7f9"/><stop offset="52%" stop-color="#9ca2a6"/><stop offset="100%" stop-color="#383c3f"/></radialGradient>'
-    +'<linearGradient id="crownG" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#3d4144"/><stop offset="50%" stop-color="#d2d6d9"/><stop offset="100%" stop-color="#43474a"/></linearGradient>'
-    +'<linearGradient id="glassGlow" x1="0" y1="0" x2="0.7" y2="1"><stop offset="0%" stop-color="#fff" stop-opacity="0.36"/><stop offset="55%" stop-color="#fff" stop-opacity="0.05"/><stop offset="100%" stop-color="#fff" stop-opacity="0"/></linearGradient>'
-    +'<linearGradient id="sweepG" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#fff" stop-opacity="0"/><stop offset="50%" stop-color="#fff" stop-opacity="0.15"/><stop offset="100%" stop-color="#fff" stop-opacity="0"/></linearGradient>'
-    +'<radialGradient id="arTint" cx="74%" cy="80%" r="46%"><stop offset="0%" stop-color="#6f7bd0" stop-opacity="0.14"/><stop offset="100%" stop-color="#6f7bd0" stop-opacity="0"/></radialGradient>'
-    +'<radialGradient id="refl2" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#fff" stop-opacity="0.14"/><stop offset="100%" stop-color="#fff" stop-opacity="0"/></radialGradient>'
-    +'<filter id="metal" x="-6%" y="-6%" width="112%" height="112%"><feTurbulence type="fractalNoise" baseFrequency="0.012 0.085" numOctaves="3" seed="11" result="n"/><feColorMatrix in="n" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.6 0" result="bump"/><feSpecularLighting in="bump" surfaceScale="3" specularConstant="1" specularExponent="16" lighting-color="#ffffff" result="spec"><fePointLight x="190" y="55" z="190"/></feSpecularLighting><feComposite in="spec" in2="SourceAlpha" operator="in" result="sp"/><feMerge><feMergeNode in="SourceGraphic"/><feMergeNode in="sp"/></feMerge></filter>'
-    +'<filter id="blur2" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="1.7"/></filter>'
-    +'<filter id="handShadow" x="-50%" y="-50%" width="200%" height="200%"><feDropShadow dx="2" dy="3.6" stdDeviation="3" flood-color="#000000" flood-opacity="0.55"/></filter>'
-    +'<filter id="lumeOn" x="-130%" y="-130%" width="360%" height="360%"><feGaussianBlur stdDeviation="3.6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>'
-    +'<filter id="softShadow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="7"/></filter>'
-    +'<clipPath id="dialClip"><circle cx="280" cy="280" r="206"/></clipPath>'
-  +'</defs>'
-
-  +'<ellipse cx="282" cy="304" rx="252" ry="252" fill="#000000" opacity="0.6" filter="url(#softShadow)"/>'
-  +'<circle cx="280" cy="280" r="268" fill="url(#caseSteel)"/>'
-  +'<circle cx="280" cy="280" r="268" fill="none" stroke="#ffffff" stroke-opacity="0.35" stroke-width="1.2"/>'
-  +'<circle cx="280" cy="280" r="251" fill="#000" opacity="0.5" filter="url(#blur2)"/>'
-  +'<circle cx="280" cy="280" r="250" fill="#0a0b09"/>'
-  +crown
-  +'<circle cx="280" cy="280" r="246" fill="url(#bezelSteel)" filter="url(#metal)"/>'
-  +'<g>'+flute+'</g>'
-  +'<path d="M 116 116 A 246 246 0 0 1 444 116" fill="none" stroke="#ffffff" stroke-opacity="0.45" stroke-width="8" stroke-linecap="round" filter="url(#blur2)"/>'
-  +'<path d="M 150 470 A 246 246 0 0 0 470 360" fill="none" stroke="#ffffff" stroke-opacity="0.18" stroke-width="5" stroke-linecap="round" filter="url(#blur2)"/>'
-  +'<circle cx="280" cy="280" r="210" fill="none" stroke="#000000" stroke-opacity="0.65" stroke-width="4"/>'
-  +'<circle cx="280" cy="280" r="207" fill="none" stroke="#000000" stroke-opacity="0.6" stroke-width="10" filter="url(#blur2)"/>'
-  +'<circle cx="280" cy="280" r="206" fill="url(#dialBase)"/>'
-  +'<g clip-path="url(#dialClip)">'+sun+'<circle cx="280" cy="280" r="206" fill="url(#dialLight)"/><circle cx="280" cy="280" r="206" fill="url(#dialVig)"/></g>'
-  +'<g>'+tk+'</g>'
-  +'<g>'+idx+'</g>'
-  +'<g><rect x="378" y="266" width="36" height="28" rx="2.5" fill="#000" opacity="0.5" transform="translate(2,3)" filter="url(#blur2)"/>'
-  +'<rect x="378" y="266" width="36" height="28" rx="2.5" fill="#ece9e2"/>'
-  +'<rect x="378" y="266" width="36" height="28" rx="2.5" fill="none" stroke="#cacecf" stroke-width="2"/>'
-  +'<rect x="378" y="266" width="36" height="28" rx="2.5" fill="none" stroke="#000" stroke-opacity="0.55" stroke-width="1"/>'
-  +'<text id="lwDate" x="396" y="286" text-anchor="middle" font-family="Mulish,system-ui,sans-serif" font-size="19" font-weight="700" fill="#191a18">00</text></g>'
-  +'<text x="280" y="162" text-anchor="middle" font-family="Macaria,Georgia,serif" font-size="20" letter-spacing="3.4" fill="#e8ead9">TIMESCAPES</text>'
-  +'<text x="280" y="181" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="9" letter-spacing="3.2" fill="#9aa089">AUTOMATIC</text>'
-  +'<text x="280" y="396" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="9.5" letter-spacing="3.6" fill="#cfd5c4">SAVEDRA</text>'
-  +'<text x="280" y="414" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="8.5" letter-spacing="3.2" fill="#8f9580">200M · 660FT</text>'
-  +'<g filter="url(#handShadow)">'+hourHand+minHand+secHand+'</g>'
-  +'<circle cx="280" cy="280" r="13" fill="url(#cap)"/><circle cx="280" cy="280" r="13" fill="none" stroke="#000" stroke-opacity="0.45" stroke-width="1"/><circle cx="275" cy="275" r="3.4" fill="#fff" fill-opacity="0.75"/>'
-  +'<g clip-path="url(#dialClip)">'
-    +'<g id="lwGlare">'
-      +'<ellipse cx="188" cy="158" rx="160" ry="126" fill="url(#glassGlow)" transform="rotate(-18 188 158)"/>'
-      +'<path d="M 98 248 A 202 202 0 0 1 250 94" fill="none" stroke="#ffffff" stroke-opacity="0.5" stroke-width="7" stroke-linecap="round" filter="url(#blur2)"/>'
-      +'<path d="M 112 264 A 202 202 0 0 1 266 110" fill="none" stroke="#ffffff" stroke-opacity="0.26" stroke-width="3" stroke-linecap="round" filter="url(#blur2)"/>'
-      +'<ellipse cx="372" cy="392" rx="70" ry="48" fill="url(#refl2)" transform="rotate(-18 372 392)"/>'
-    +'</g>'
-    +'<rect x="-70" y="0" width="120" height="560" fill="url(#sweepG)" class="glass-sweep"/>'
-    +'<circle cx="280" cy="280" r="206" fill="url(#arTint)"/>'
-    +'<path d="M 372 98 A 206 206 0 0 1 462 282" fill="none" stroke="#ffffff" stroke-opacity="0.2" stroke-width="2.5" stroke-linecap="round" filter="url(#blur2)"/>'
-  +'</g>'
-  +'<circle cx="280" cy="280" r="206" fill="none" stroke="#ffffff" stroke-opacity="0.13" stroke-width="1.5"/>'
-  +'</svg>';
-
-  faceEl.innerHTML=svg;
-  var hourH=faceEl.querySelector('#lwHour'), minH=faceEl.querySelector('#lwMin'),
-      secH=faceEl.querySelector('#lwSec'), dateT=faceEl.querySelector('#lwDate'),
-      glare=faceEl.querySelector('#lwGlare');
-
-  /* nudge a repaint once the reveal opacity transition finishes — SVG filters
-     can otherwise render stale inside an element that fades in */
-  if(!REDUCE){
-    var rp=faceEl.closest('[data-reveal]');
-    if(rp){
-      var rpH=function(e){ if(e.propertyName==='opacity'||e.propertyName==='transform'){ faceEl.getBoundingClientRect(); rp.removeEventListener('transitionend',rpH); } };
-      rp.addEventListener('transitionend',rpH);
-      setTimeout(function(){ faceEl.getBoundingClientRect(); rp.removeEventListener('transitionend',rpH); },1500);
-    }
-  }
-
-  /* real-time, 8-beat mechanical sweep */
+  render();
   function tick(){
-    var now=new Date(), ms=REDUCE?0:now.getMilliseconds();
-    var mm=now.getMinutes()+now.getSeconds()/60+ms/60000, hh=(now.getHours()%12)+mm/60, sec;
-    if(REDUCE){ sec=now.getSeconds(); }
-    else { var BPS=8, t=(now.getSeconds()+ms/1000)*BPS, b=Math.floor(t), into=t-b; sec=(b+(1-Math.pow(1-into,3)))/BPS; }
-    if(hourH){ hourH.setAttribute('transform','rotate('+(hh*30)+' 280 280)');
-               minH.setAttribute('transform','rotate('+(mm*6)+' 280 280)');
-               secH.setAttribute('transform','rotate('+(sec*6)+' 280 280)'); }
-    if(dateT) dateT.textContent=String(now.getDate()).padStart(2,'0');
+    const now=new Date(), ms=REDUCE?0:now.getMilliseconds();
+    const s=now.getSeconds()+ms/1000, m=now.getMinutes()+s/60, h=(now.getHours()%12)+m/60;
+    if(hH){ hH.setAttribute('transform',`rotate(${h*30} ${C} ${C})`); mH.setAttribute('transform',`rotate(${m*6} ${C} ${C})`); sH.setAttribute('transform',`rotate(${s*6} ${C} ${C})`); }
     if(chipEl) chipEl.innerHTML='Live · <b>'+now.toLocaleTimeString('en-US',{hour12:false})+'</b>';
     REDUCE?setTimeout(tick,1000):requestAnimationFrame(tick);
   }
   tick();
+  if(toggleEl) toggleEl.addEventListener('click',()=>{ mode=mode==='day'?'lume':'day'; toggleEl.textContent=mode==='day'?'Lume':'Day'; render(); });
 
-  /* lume toggle (wired to the existing #lumeToggle button) */
-  var lumeOn=false;
-  if(toggleEl) toggleEl.addEventListener('click',function(){
-    lumeOn=!lumeOn; toggleEl.textContent=lumeOn?'Day':'Lume';
-    var ls=faceEl.querySelectorAll('.lume');
-    for(var j=0;j<ls.length;j++){
-      if(lumeOn){ ls[j].setAttribute('filter','url(#lumeOn)'); ls[j].setAttribute('fill','#c9f5a8'); }
-      else { ls[j].removeAttribute('filter'); ls[j].setAttribute('fill','url(#lume)'); }
-    }
-  });
-
-  /* gentle 3D tilt toward the cursor + glare parallax (kept from your original) */
+  // subtle "real watch under moving light" interaction: the dial tilts gently
+  // toward the cursor while a soft highlight tracks the pointer across the glass.
   if(!REDUCE && FINE){
-    var wrap=faceEl.closest('.livewatch')||faceEl, raf=null;
-    wrap.addEventListener('pointermove',function(e){
-      var r=faceEl.getBoundingClientRect(); if(!r.width) return;
-      var dx=clamp((e.clientX-(r.left+r.width/2))/(r.width/2),-1,1),
-          dy=clamp((e.clientY-(r.top+r.height/2))/(r.height/2),-1,1);
+    const wrap=faceEl.closest('.livewatch')||faceEl; let raf=null;
+    wrap.addEventListener('pointermove',e=>{
+      const r=faceEl.getBoundingClientRect(); if(!r.width) return;
+      const px=clamp((e.clientX-r.left)/r.width,0,1), py=clamp((e.clientY-r.top)/r.height,0,1);
       if(raf) cancelAnimationFrame(raf);
-      raf=requestAnimationFrame(function(){
-        faceEl.style.transform='rotateX('+(-dy*9).toFixed(2)+'deg) rotateY('+(dx*9).toFixed(2)+'deg)';
-        if(glare) glare.setAttribute('transform','translate('+(-dx*22).toFixed(1)+' '+(-dy*22).toFixed(1)+')');
+      raf=requestAnimationFrame(()=>{
+        faceEl.style.transform=`rotateX(${((0.5-py)*10).toFixed(2)}deg) rotateY(${((px-0.5)*10).toFixed(2)}deg)`;
+        glare.style.setProperty('--gx',(px*100).toFixed(1)+'%');
+        glare.style.setProperty('--gy',(py*100).toFixed(1)+'%');
       });
+      wrap.classList.add('lw-live');
     });
-    wrap.addEventListener('pointerleave',function(){ if(raf) cancelAnimationFrame(raf); faceEl.style.transform=''; if(glare) glare.setAttribute('transform','translate(0 0)'); });
+    wrap.addEventListener('pointerleave',()=>{ if(raf) cancelAnimationFrame(raf); faceEl.style.transform=''; wrap.classList.remove('lw-live'); });
   }
 }
 
