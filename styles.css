@@ -505,3 +505,45 @@ footer{padding:72px 0 44px;border-top:1px solid var(--line-2);background:#1d1d1c
   font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--ink-soft)}
 .foot__trust-dot{width:7px;height:7px;border-radius:50%;background:var(--gold);
   box-shadow:0 0 0 3px rgba(137,140,121,.18);flex:0 0 auto}
+
+/* ============================================================
+   TIMESCAPES — motion polish  (append to END of styles.css)
+   Bump the ?v= on all four pages after pasting this.
+   ============================================================ */
+
+/* ---- live watch: crystal light-sweep (REQUIRED by the new buildLiveWatch) ---- */
+.livewatch__face svg{overflow:visible}
+.livewatch__face .glass-sweep{transform-box:view-box;
+  animation:glassSweep 8s cubic-bezier(.45,0,.55,1) infinite}
+@keyframes glassSweep{
+  0%{transform:translateX(-380px) skewX(-14deg)}
+  100%{transform:translateX(400px) skewX(-14deg)}
+}
+
+/* ---- nav: frost harder once you scroll past the hero ---- */
+.nav{transition:box-shadow .4s var(--ease), background .4s, backdrop-filter .4s var(--ease)}
+.nav.scrolled{backdrop-filter:blur(24px) saturate(140%);-webkit-backdrop-filter:blur(24px) saturate(140%)}
+
+/* ---- cards: a slow sheen glint sweeps the image on hover ---- */
+.card__media{position:relative;overflow:hidden}
+.card__media::after{content:"";position:absolute;top:0;left:-75%;width:55%;height:100%;
+  pointer-events:none;z-index:2;transform:skewX(-18deg);opacity:0;
+  background:linear-gradient(100deg,transparent,rgba(255,255,255,.14),transparent)}
+.card:hover .card__media::after{opacity:1;animation:cardSheen .8s var(--ease)}
+@keyframes cardSheen{0%{left:-75%}100%{left:130%}}
+
+/* ---- big serif headlines wipe in from a mask instead of plain fade ----
+   Only inside no-preference, and with a fallback reset, so a headline
+   can NEVER end up stuck clipped/invisible. */
+@media (prefers-reduced-motion: no-preference){
+  .display[data-reveal]{clip-path:inset(-6% 100% -6% -6%);opacity:1;transform:none;
+    transition:clip-path 1.1s var(--ease)}
+  .display[data-reveal].in{clip-path:inset(-6% -6% -6% -6%)}
+  .reveal-fallback .display[data-reveal]{clip-path:none !important}
+}
+
+/* ---- respect reduced motion everywhere above ---- */
+@media (prefers-reduced-motion: reduce){
+  .livewatch__face .glass-sweep{animation:none}
+  .card:hover .card__media::after{animation:none;opacity:0}
+}
