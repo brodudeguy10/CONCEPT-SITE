@@ -656,7 +656,10 @@ function navHTML(page){
       ${a('owner.html#contact','Contact','contact')}
     </nav>
     <div class="nav__cta">
-      <a class="btn btn--gold" href="${EBAY}" target="_blank" rel="noopener">View on eBay ↗</a>
+      <span class="nav-ebay">
+        <a class="btn btn--gold" href="${EBAY}" target="_blank" rel="noopener">View on eBay ↗</a>
+        <span class="nav-ebay__watch" aria-hidden="true"><span class="nw-spin"><svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="nwCase" cx="40%" cy="34%" r="70%"><stop offset="0" stop-color="#e9edee"/><stop offset=".55" stop-color="#9aa0a3"/><stop offset="1" stop-color="#41454a"/></radialGradient></defs><circle cx="20" cy="20" r="19" fill="url(#nwCase)"/><circle cx="20" cy="20" r="19" fill="none" stroke="#fff" stroke-opacity=".4" stroke-width=".6"/><circle cx="20" cy="20" r="15.4" fill="#16170f"/><circle cx="20" cy="20" r="15.4" fill="none" stroke="#898C79" stroke-width="1"/><rect x="19.1" y="6.3" width="1.8" height="3.3" rx=".9" fill="#cdd0c2"/><rect x="30.4" y="19.1" width="3.3" height="1.8" rx=".9" fill="#cdd0c2"/><rect x="19.1" y="30.4" width="1.8" height="3.3" rx=".9" fill="#cdd0c2"/><rect x="6.3" y="19.1" width="3.3" height="1.8" rx=".9" fill="#cdd0c2"/><line x1="20" y1="20" x2="13.6" y2="13.6" stroke="#eef0e6" stroke-width="1.7" stroke-linecap="round"/><line x1="20" y1="20" x2="27.2" y2="12.2" stroke="#eef0e6" stroke-width="1.4" stroke-linecap="round"/><line x1="20" y1="20" x2="20" y2="29" stroke="#898C79" stroke-width=".9" stroke-linecap="round"/><circle cx="20" cy="20" r="1.7" fill="#cdd0c2"/></svg></span></span>
+      </span>
       <button class="menu-btn" id="menuBtn" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
     </div>
   </div>`;
@@ -739,6 +742,23 @@ function initMetricCounts(){
   var o=new IntersectionObserver(function(es){ es.forEach(function(en){
     if(en.isIntersecting){ run(); o.unobserve(en.target); } }); },{threshold:.5});
   o.observe(box);
+}
+
+/* ---------------- magnetic CTA buttons (very slight) ---------------- */
+function initMagnetic(){
+  if(REDUCE || !FINE) return;
+  $$('.btn--gold').forEach(function(btn){
+    if(btn.closest('.nav-ebay')) return;   // the nav button has the peeking watch — leave it
+    var raf=null;
+    btn.addEventListener('pointermove',function(e){
+      var r=btn.getBoundingClientRect();
+      var dx=clamp((e.clientX-(r.left+r.width/2))*0.15,-4,4),
+          dy=clamp((e.clientY-(r.top+r.height/2))*0.15,-3,3);
+      if(raf) cancelAnimationFrame(raf);
+      raf=requestAnimationFrame(function(){ btn.style.transform='translate('+dx.toFixed(1)+'px,'+(dy-2).toFixed(1)+'px)'; });
+    });
+    btn.addEventListener('pointerleave',function(){ if(raf) cancelAnimationFrame(raf); btn.style.transform=''; });
+  });
 }
 
 function initHome(){
@@ -877,6 +897,7 @@ else if(page==='owner') initOwner();
 observeReveals();
 initVideoPerf();
 initImgFade();
+initMagnetic();
 
 /* safety net: if reveals haven't started shortly after load (observer never
    fired, e.g. a stalled render pipeline), un-hide everything so the page is

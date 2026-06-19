@@ -532,18 +532,44 @@ footer{padding:72px 0 44px;border-top:1px solid var(--line-2);background:#1d1d1c
 .card:hover .card__media::after{opacity:1;animation:cardSheen .8s var(--ease)}
 @keyframes cardSheen{0%{left:-75%}100%{left:130%}}
 
-/* ---- big serif headlines wipe in from a mask instead of plain fade ----
-   Only inside no-preference, and with a fallback reset, so a headline
-   can NEVER end up stuck clipped/invisible. */
+/* ---- the hero headline wipes in from a mask — SIGNATURE moment, hero only.
+   Every other headline keeps the clean fade so the wipe stays special.
+   Inside no-preference + a fallback reset, so it can never strand a title. */
 @media (prefers-reduced-motion: no-preference){
-  .display[data-reveal]{clip-path:inset(-6% 100% -6% -6%);opacity:1;transform:none;
-    transition:clip-path 1.1s var(--ease)}
-  .display[data-reveal].in{clip-path:inset(-6% -6% -6% -6%)}
-  .reveal-fallback .display[data-reveal]{clip-path:none !important}
+  .hero .display[data-reveal]{clip-path:inset(-8% 100% -8% -8%);opacity:1;transform:none;
+    transition:clip-path 1.2s var(--ease)}
+  .hero .display[data-reveal].in{clip-path:inset(-8% -8% -8% -8%)}
+  html.reveal-fallback .hero .display[data-reveal]{clip-path:none !important}
 }
 
 /* ---- respect reduced motion everywhere above ---- */
 @media (prefers-reduced-motion: reduce){
   .livewatch__face .glass-sweep{animation:none}
   .card:hover .card__media::after{animation:none;opacity:0}
+}
+
+/* ---- nav eBay button: a tiny watch peeks out to the right & spins on hover ----
+   Desktop/fine-pointer only (no hover on touch). Body has overflow-x:hidden,
+   so it can never trigger a horizontal scrollbar. */
+.nav-ebay{position:relative;display:inline-flex}
+.nav-ebay > .btn{position:relative;z-index:1}
+.nav-ebay__watch{display:none}
+@media (hover:hover) and (pointer:fine){
+  .nav-ebay__watch{display:block;position:absolute;right:2px;top:50%;z-index:0;
+    width:30px;height:30px;pointer-events:none;
+    transform:translate(-15%,-50%) scale(.35);opacity:0;
+    filter:drop-shadow(0 4px 7px rgba(0,0,0,.45));
+    transition:transform .55s var(--ease), opacity .35s var(--ease)}
+  .nav-ebay:hover .nav-ebay__watch,
+  .nav-ebay:focus-within .nav-ebay__watch{transform:translate(132%,-50%) scale(1);opacity:1}
+  .nav-ebay__watch .nw-spin{display:block;width:100%;height:100%;transform-origin:50% 50%}
+  .nav-ebay__watch svg{display:block;width:100%;height:100%}
+  .nav-ebay:hover .nav-ebay__watch .nw-spin,
+  .nav-ebay:focus-within .nav-ebay__watch .nw-spin{animation:navWatchSpin 2.8s linear infinite}
+  @keyframes navWatchSpin{to{transform:rotate(360deg)}}
+}
+@media (prefers-reduced-motion:reduce){
+  .nav-ebay__watch{transition:opacity .3s var(--ease) !important}
+  .nav-ebay:hover .nav-ebay__watch .nw-spin,
+  .nav-ebay:focus-within .nav-ebay__watch .nw-spin{animation:none !important}
 }
