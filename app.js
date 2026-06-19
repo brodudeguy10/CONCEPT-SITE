@@ -26,6 +26,8 @@ const WATCHES = [
   {id:'avi',    folder:'watch-10',frames:11, brand:'Breitling',name:'Super AVI B04 46 “Corsair”',        ref:'AB04451A1C1X1',       spec:'Steel · Blue Dial · Chrono GMT', badge:'Just in', cover:5,
     ebay:'https://www.ebay.com/itm/198384399349?itmmeta=01KV4A7GR5A1YQZFKWHXN2FAQN&hash=item2e30a1b3f5:g:jXYAAeSwb-JqF20h'},
   /* ---- sold (kept up as the archive / the flex) ---- */
+  {id:'dj41', folder:'watch-12',frames:7,  brand:'Rolex',      name:'Datejust 41 “Blue Diamond”', ref:'126334',            spec:'Steel · Fluted White Gold · Blue Diamond', badge:'Sold', sold:true},
+  {id:'br03', folder:'watch-11',frames:5,  brand:'Bell & Ross',name:'BR-03 Diver “Full Lum”',     ref:'BR03A-D-LM-CE/SRB',  spec:'Black Ceramic · Full Lume · Diver',        badge:'Sold', sold:true},
   {id:'gmt',  folder:'watch-1', frames:8,  brand:'Rolex',    name:'GMT-Master II “Rootbeer”', ref:'126715CHNR', spec:'Everose Gold · GMT · Cerachrom', badge:'Sold', sold:true},
   {id:'sea',  folder:'watch-2', frames:11, brand:'Omega',    name:'Seamaster Diver 300M',     ref:'210.62.42', spec:'Titanium · Sedna Gold · Green', badge:'Sold', sold:true},
   {id:'p904b',folder:'watch-3', frames:6,  brand:'Panerai',  name:'Luminor Due 42mm',         ref:'PAM00904',  spec:'Steel · Sunburst · Suede',     badge:'Sold', sold:true},
