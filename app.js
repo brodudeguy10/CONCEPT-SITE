@@ -542,6 +542,7 @@ function navHTML(page){
 <nav class="nav__links" id="navLinks" aria-label="Primary">
       ${a('index.html','Home','home')}
       ${a('inventory.html','Our Watches','inventory')}
+      ${a('anatomy.html','Anatomy','anatomy')}
       ${a('owner.html','The Owner','owner')}
       ${a('owner.html#contact','Contact','contact')}
     </nav>
@@ -563,7 +564,7 @@ function footerHTML(){
       </div>
       <div class="foot__links">
         <div class="foot__col"><h5>Explore</h5>
-          <a href="index.html">Home</a><a href="inventory.html">Our Watches</a><a href="owner.html">The Owner</a></div>
+          <a href="index.html">Home</a><a href="inventory.html">Our Watches</a><a href="anatomy.html">Anatomy</a><a href="owner.html">The Owner</a></div>
         <div class="foot__col"><h5>Find us</h5>
           <a href="${EBAY}" target="_blank" rel="noopener">eBay Store</a>
           <a href="${IG_BRAND}" target="_blank" rel="noopener">@timescapesllc</a>
