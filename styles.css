@@ -573,3 +573,42 @@ footer{padding:72px 0 44px;border-top:1px solid var(--line-2);background:#1d1d1c
   .nav-ebay:hover .nav-ebay__watch .nw-spin,
   .nav-ebay:focus-within .nav-ebay__watch .nw-spin{animation:none !important}
 }
+
+/* ============================================================
+   MOBILEMAXX — phone refinements (after all base rules so they win)
+   ============================================================ */
+@media(max-width:600px){
+  /* tighter vertical rhythm: the desktop 88px min left a lot of dead scroll */
+  :root{--section:clamp(54px,12vw,92px)}
+
+  /* leaner nav */
+  .nav__row{height:64px}
+  .nav__links.open{top:64px}
+  .brand{font-size:20px}
+  .brand img{width:22px}
+  .nav-ebay > .btn{padding:11px 14px;font-size:12px}
+
+  /* hero + page heads start higher under the shorter nav */
+  .hero{padding-top:36px}
+  .hero .lead{margin-top:22px}
+  .hero .cta-row{margin-top:30px}
+  .page-head{padding-top:42px}
+
+  /* headline scales down on small screens instead of a flat 48px */
+  h1.display{font-size:clamp(38px,8vw,48px)}
+
+  /* CTAs go full-width + stacked: cleaner and easier to tap */
+  .cta-row{flex-direction:column;align-items:stretch;gap:12px}
+  .cta-row .btn{width:100%;justify-content:center;padding:15px 24px}
+
+  /* misc tightening */
+  .sec-head{margin-bottom:clamp(28px,6vw,40px)}
+  .film__inner{padding:clamp(54px,12vw,90px) 0}
+  footer{padding:48px 0 36px}
+  .foot__links{gap:30px}
+}
+
+/* tiny phones: drop the nav eBay button (still in the hero + footer) so the bar never crowds */
+@media(max-width:380px){
+  .nav-ebay{display:none}
+}

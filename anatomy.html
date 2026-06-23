@@ -12,8 +12,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Mulish:ital,wght@0,400;0,500;0,600;0,700;1,500&display=swap" rel="stylesheet">
 <link rel="icon" href="assets/brand/icon-green.svg">
-<link rel="stylesheet" href="styles.css?v=20260623">
-<script defer src="app.js?v=20260623"></script>
+<link rel="stylesheet" href="styles.css?v=20260624">
+<script defer src="app.js?v=20260624"></script>
 
 <style>
 /* ===== stage + flip ===== */
@@ -109,7 +109,20 @@
   .pill:hover{border-color:var(--gold-line);color:var(--ink)}
   .pill.active{background:var(--ink);color:#20211d;border-color:var(--ink)}
 
-  @media (max-width:640px){.readout{grid-template-columns:1fr;gap:6px}.readout__idx{padding-top:0}.anno .lbl{font-size:11.5px}}
+  @media (max-width:640px){
+    .flip{aspect-ratio:1/1}
+    .anno{display:none}
+    .anat .container{display:flex;flex-direction:column}
+    .stage{order:1;padding:14px 6px}
+    .bar{order:2;margin-top:18px}
+    .legend{order:3;margin-top:16px;gap:7px}
+    .readout{order:4;grid-template-columns:1fr;gap:6px;margin-top:18px;min-height:0;padding:0 2px}
+    .anat-specs{order:5}
+    .pill{font-size:11px;padding:10px 14px;letter-spacing:.1em}
+    .seg button{padding:11px 15px}
+    .lights{padding:11px 16px}
+    .readout__idx{padding-top:0}
+  }
   @media (prefers-reduced-motion:reduce){.anat *{transition:none!important;animation:none!important}#diagramFront,#diagramBack{opacity:1;transform:none}.anno .lead-line{stroke-dashoffset:0}.anno .dot,.anno .lbl,.anno .num{opacity:1}}
   /* section spacing for the integrated page */
   .anat{padding-bottom:clamp(80px,10vw,130px)}
@@ -369,6 +382,12 @@
   dFront.innerHTML=frontSVG()+annoSVG(FRONT_ANNO);
   dBack.innerHTML=movementSVG()+annoSVG(BACK_ANNO);
 
+  /* phones: crop the viewBox to the watch so it fills the screen (labels are hidden on mobile) */
+  var mqMobile=matchMedia('(max-width:640px)');
+  function applyMobile(){var vb=mqMobile.matches?'260 80 520 520':'0 0 1040 680';dFront.setAttribute('viewBox',vb);dBack.setAttribute('viewBox',vb);}
+  applyMobile();
+  try{mqMobile.addEventListener('change',applyMobile);}catch(e){mqMobile.addListener(applyMobile);}
+
   /* live hands */
   var hHour=dFront.querySelector('#hHour'), hMin=dFront.querySelector('#hMin'), hSec=dFront.querySelector('#hSec');
   function setHands(a,b,c){hHour.setAttribute('transform','rotate('+a+' '+C+' '+CY+')');hMin.setAttribute('transform','rotate('+b+' '+C+' '+CY+')');hSec.setAttribute('transform','rotate('+c+' '+C+' '+CY+')');}
@@ -385,6 +404,11 @@
   var side='front', pinned=null, current=null, lit=false, swapT=null;
   var DEF={idx:'00',name:'Point at any part',desc:"Hover anything and it'll tell you what it does, and most of them will show you too. Flip it over for the movement, or kill the lights to charge the lume."};
   var DEF_BACK={idx:'00',name:'Point at any piece',desc:"It's all moving in here for real: the balance is beating, the rotor's swinging. Hover any piece to see what it's for."};
+  if(mqMobile.matches){
+    DEF.name='Tap a part';DEF.desc="Tap any part and it'll tell you what it does, and most will show you too. Flip it over for the movement, or kill the lights to charge the lume.";
+    DEF_BACK.name='Tap a piece';DEF_BACK.desc="It's all moving in here for real: the balance is beating, the rotor's swinging. Tap any piece to see what it's for.";
+    rName.textContent=DEF.name;rDesc.textContent=DEF.desc;
+  }
   function S(){return SIDES[side];}
   function byPart(p){return S().anno.filter(function(a){return a.part===p;})[0];}
 
