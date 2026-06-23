@@ -229,9 +229,12 @@
     var date='<g class="part" data-part="date"><rect x="'+(dwx-21)+'" y="'+(CY-20)+'" width="42" height="40" rx="3" fill="#ece9e2"/><rect x="'+(dwx-21)+'" y="'+(CY-20)+'" width="42" height="40" rx="3" fill="none" stroke="#000" stroke-opacity="0.35" stroke-width="1"/>'
       +'<text id="dateNum" x="'+dwx+'" y="'+(CY+9)+'" text-anchor="middle" font-family="Mulish,sans-serif" font-size="26" font-weight="700" fill="#1b1c19">14</text></g>';
 
-    function merc(){var L=110,w=9;var tip=CY-L;
+    function merc(){var L=110,w=9;var tip=CY-L;var cyv=CY-L*0.62;
       return '<path d="M '+C+' '+f(tip)+' L '+(C+w)+' '+f(CY-L*0.55)+' L '+(C+w*0.5)+' '+(CY+18)+' L '+(C-w*0.5)+' '+(CY+18)+' L '+(C-w)+' '+f(CY-L*0.55)+' Z" class="lumePart" fill="url(#lumeG)" stroke="#2a2b27" stroke-width="1"/>'
-        +'<circle cx="'+C+'" cy="'+f(CY-L*0.62)+'" r="13" fill="none" stroke="#2a2b27" stroke-width="3.2"/><circle cx="'+C+'" cy="'+f(CY-L*0.62)+'" r="13" class="lumePart" fill="url(#lumeG)" fill-opacity="0.9"/>';}
+        +'<circle cx="'+C+'" cy="'+f(cyv)+'" r="13" fill="none" stroke="#2a2b27" stroke-width="3.2"/><circle cx="'+C+'" cy="'+f(cyv)+'" r="13" class="lumePart" fill="url(#lumeG)" fill-opacity="0.9"/>'
+        +'<line x1="'+C+'" y1="'+f(cyv)+'" x2="'+C+'" y2="'+f(cyv-13)+'" stroke="#2a2b27" stroke-width="2.6" stroke-linecap="round"/>'
+        +'<line x1="'+C+'" y1="'+f(cyv)+'" x2="'+f(C+11.26)+'" y2="'+f(cyv+6.5)+'" stroke="#2a2b27" stroke-width="2.6" stroke-linecap="round"/>'
+        +'<line x1="'+C+'" y1="'+f(cyv)+'" x2="'+f(C-11.26)+'" y2="'+f(cyv+6.5)+'" stroke="#2a2b27" stroke-width="2.6" stroke-linecap="round"/>';}
     function minH(){var L=160,w=6.5;var tip=CY-L;
       return '<path d="M '+C+' '+f(tip)+' L '+(C+w)+' '+f(CY-L*0.5)+' L '+(C+w*0.45)+' '+(CY+18)+' L '+(C-w*0.45)+' '+(CY+18)+' L '+(C-w)+' '+f(CY-L*0.5)+' Z" class="lumePart" fill="url(#lumeG)" stroke="#2a2b27" stroke-width="1"/>';}
     var hands='<g class="part" data-part="hands">'
@@ -283,7 +286,7 @@
     var hs='M '+bx+' '+by;
     for(var t=0.3;t<=5.6*Math.PI;t+=0.22){var rr=2.5+t*1.0,xx=bx+Math.cos(t)*rr,yy=by+Math.sin(t)*rr;hs+=' L '+f(xx)+' '+f(yy);}
     var balInner='<circle cx="'+bx+'" cy="'+by+'" r="'+br+'" fill="none" stroke="#b8bcae" stroke-width="5"/><line x1="'+(bx-br)+'" y1="'+by+'" x2="'+(bx+br)+'" y2="'+by+'" stroke="#aeb2a4" stroke-width="3"/><line x1="'+bx+'" y1="'+(by-br)+'" x2="'+bx+'" y2="'+(by+br)+'" stroke="#aeb2a4" stroke-width="3"/><line x1="'+(bx-br*0.7)+'" y1="'+(by-br*0.7)+'" x2="'+(bx+br*0.7)+'" y2="'+(by+br*0.7)+'" stroke="#aeb2a4" stroke-width="2.4"/><path d="'+hs+'" fill="none" stroke="#d8b65a" stroke-width="1.1" opacity="0.85"/>'+screw(bx,by-br)+screw(bx+br,by)+screw(bx,by+br)+screw(bx-br,by)+'<circle cx="'+bx+'" cy="'+by+'" r="4" fill="#cfd3c5"/>';
-    var balAnim=REDUCE?'':'<animateTransform attributeName="transform" attributeType="XML" type="rotate" values="-14 '+bx+' '+by+';14 '+bx+' '+by+';-14 '+bx+' '+by+'" keyTimes="0;0.5;1" dur="0.3s" calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1" repeatCount="indefinite"/>';
+    var balAnim=REDUCE?'':'<animateTransform attributeName="transform" attributeType="XML" type="rotate" values="-14 '+bx+' '+by+';14 '+bx+' '+by+';-14 '+bx+' '+by+'" keyTimes="0;0.5;1" dur="0.25s" calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1" repeatCount="indefinite"/>';
     var rx=600,ry=276,coils='';
     for(var cc=8;cc<46;cc+=5){coils+='<circle cx="'+rx+'" cy="'+ry+'" r="'+cc+'" fill="none" stroke="#6c7162" stroke-width="1.4" opacity="0.5"/>';}
     var barAnim=REDUCE?'':'<animateTransform attributeName="transform" attributeType="XML" type="rotate" from="0 '+rx+' '+ry+'" to="360 '+rx+' '+ry+'" dur="48s" repeatCount="indefinite"/>';
@@ -291,8 +294,8 @@
     // escapement: small escape wheel + anchor-shaped pallet fork beside the balance
     var ew=520,ey=452;
     var tickVals='';for(var ti=0;ti<15;ti++){tickVals+=(ti?';':'')+(ti*24)+' '+ew+' '+ey;}
-    var tickAnim=REDUCE?'':'<animateTransform attributeName="transform" attributeType="XML" type="rotate" calcMode="discrete" values="'+tickVals+'" dur="2.25s" repeatCount="indefinite"/>';
-    var rockAnim=REDUCE?'':'<animateTransform attributeName="transform" attributeType="XML" type="rotate" values="-6 490 448;6 490 448;-6 490 448" keyTimes="0;0.5;1" dur="0.3s" calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1" repeatCount="indefinite"/>';
+    var tickAnim=REDUCE?'':'<animateTransform attributeName="transform" attributeType="XML" type="rotate" calcMode="discrete" values="'+tickVals+'" dur="1.875s" repeatCount="indefinite"/>';
+    var rockAnim=REDUCE?'':'<animateTransform attributeName="transform" attributeType="XML" type="rotate" values="-6 490 448;6 490 448;-6 490 448" keyTimes="0;0.5;1" dur="0.25s" calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1" repeatCount="indefinite"/>';
     var escapeWheel='<g>'+wheel(ew,ey,13,15,'#565b4e')+'<circle cx="'+ew+'" cy="'+ey+'" r="3.4" fill="#2a2d24"/>'+tickAnim+'</g>';
     var pallet='<g stroke-linecap="round">'+rockAnim
       +'<line x1="490" y1="448" x2="509" y2="446" stroke="#b6baac" stroke-width="3.4"/>'
@@ -344,9 +347,9 @@
     {part:'balance',num:'02',name:'Balance Wheel',ax:432,ay:412,lx:250,ly:296,side:'L',desc:"This is the piece keeping time. It swings back and forth at a locked rate, 28,800 times an hour here, eight beats a second. Hold that rhythm steady and the watch holds time. The fine coil at its center is the hairspring; a watchmaker shortens or lengthens it by a hair to speed the watch up or slow it down."},
     {part:'escapement',num:'03',name:'Escapement',ax:508,ay:452,lx:250,ly:474,side:'L',desc:"The cleverest part in here, and the source of the ticking. This little anchor-shaped lever catches a spinning toothed wheel and lets it slip one tooth at a time, in step with the balance. That catch-and-release feeds the mainspring's power out in even sips instead of letting it dump all at once."},
     {part:'barrel',num:'04',name:'Mainspring Barrel',ax:602,ay:276,lx:790,ly:178,side:'R',desc:"The fuel tank. A flat spring sits coiled up tight inside this drum; the rotor winds it, and it lets go a little at a time to drive the rest of the movement. A full wind buys you around two days. That number is the 'power reserve' on the spec sheet."},
-    {part:'jewels',num:'05',name:'Jewels',ax:560,ay:300,lx:790,ly:300,side:'R',desc:"The little red dots are jewels: synthetic rubies pressed in wherever a fast-spinning part would otherwise grind metal on metal. They're slick and they outlast the parts around them. This movement runs 25, and the maker stamps that count on the bridge. It's a big reason a good mechanical can run 50 years on a cleaning and fresh oil every few."},
+    {part:'jewels',num:'05',name:'Jewels',ax:560,ay:300,lx:790,ly:300,side:'R',desc:"The little red dots are jewels: synthetic rubies pressed in wherever a fast-spinning part would otherwise grind metal on metal. They're slick and they outlast the parts around them. This movement runs 25. It's a big reason a good mechanical can run 50 years on a cleaning and fresh oil every few."},
     {part:'gears',num:'06',name:'Gear Train',ax:524,ay:378,lx:790,ly:392,side:'R',desc:"The chain of toothed wheels carrying power from the barrel up to the escapement. Each wheel turns the next at a fixed ratio, and stacking those ratios slows the spring's fast unwind down to one clean turn a minute at the seconds hand."},
-    {part:'bridges',num:'07',name:'Bridges',ax:576,ay:430,lx:790,ly:482,side:'R',desc:"The metal plates arching over the gears, holding the pivots in line. The wavy striping is Côtes de Genève, and someone bevels and polishes those edges by hand. None of it changes how the watch runs; it sits there to look good through the glass back. At this level, the finishing is half of what you're paying for."}
+    {part:'bridges',num:'07',name:'Bridges',ax:576,ay:430,lx:790,ly:482,side:'R',desc:"The metal plates arching over the gears, holding the pivots in line. The fine striping is Côtes de Genève, and someone bevels and polishes those edges by hand. None of it changes how the watch runs; it sits there to look good through the glass back. At this level, the finishing is half of what you're paying for."}
   ];
 
   function annoSVG(list){return list.map(function(a,i){
@@ -369,7 +372,7 @@
   /* live hands */
   var hHour=dFront.querySelector('#hHour'), hMin=dFront.querySelector('#hMin'), hSec=dFront.querySelector('#hSec');
   function setHands(a,b,c){hHour.setAttribute('transform','rotate('+a+' '+C+' '+CY+')');hMin.setAttribute('transform','rotate('+b+' '+C+' '+CY+')');hSec.setAttribute('transform','rotate('+c+' '+C+' '+CY+')');}
-  if(REDUCE){setHands(305,63,180);} else {(function tk(){var d=new Date();setHands(((d.getHours()%12)+d.getMinutes()/60)*30,(d.getMinutes()+d.getSeconds()/60)*6,(d.getSeconds()+d.getMilliseconds()/1000)*6);requestAnimationFrame(tk);})();}
+  if(REDUCE){setHands(305,63,180);} else {(function tk(){var d=new Date();setHands(((d.getHours()%12)+d.getMinutes()/60)*30,(d.getMinutes()+d.getSeconds()/60)*6,(d.getSeconds()+Math.floor(d.getMilliseconds()/1000*8)/8)*6);requestAnimationFrame(tk);})();}
 
   /* ============ state ============ */
   var stage=document.getElementById('stage'), flip=document.getElementById('flip'),
