@@ -220,10 +220,9 @@ function watchSVG(o){
   let ticks="";
   for(let i=0;i<60;i++){ const a=(i/60)*Math.PI*2, major=(i%5===0), r1=major?150:153, r2=159, w=major?2.2:1;
     ticks+=`<line x1="${(C+Math.sin(a)*r1).toFixed(1)}" y1="${(C-Math.cos(a)*r1).toFixed(1)}" x2="${(C+Math.sin(a)*r2).toFixed(1)}" y2="${(C-Math.cos(a)*r2).toFixed(1)}" stroke="#cbcdc7" stroke-width="${w}" opacity="${major?.78:.42}"/>`; }
-  // fluted steel bezel (alternating bright / dark facets)
-  let flute="";
-  for(let i=0;i<90;i++){ const a=(i/90)*Math.PI*2, s=Math.sin(a), c=-Math.cos(a);
-    flute+=`<line x1="${(C+s*172).toFixed(1)}" y1="${(C+c*172).toFixed(1)}" x2="${(C+s*183).toFixed(1)}" y2="${(C+c*183).toFixed(1)}" stroke="${i%2?'#595c63':'#f2f4f7'}" stroke-width="2.3" opacity=".6"/>`; }
+  // smooth polished-steel bezel (clean concentric rings, no fluting)
+  let flute=`<circle cx="${C}" cy="${C}" r="177" fill="none" stroke="#ffffff" stroke-opacity=".28" stroke-width="1.2"/>`
+    +`<circle cx="${C}" cy="${C}" r="174" fill="none" stroke="#000" stroke-opacity=".16" stroke-width="1"/>`;
   // applied steel hour indices with bevel highlight + lume (skip 3 for the date, 12 a touch longer)
   let idx="";
   for(let h=0;h<12;h++){ if(h===3) continue;
@@ -256,7 +255,7 @@ function watchSVG(o){
       <clipPath id="cf-${id}"><circle cx="${C}" cy="${C}" r="184"/></clipPath>
     </defs>
 
-    <!-- polished steel case + fluted bezel -->
+    <!-- polished steel case + smooth bezel -->
     <circle cx="${C}" cy="${C}" r="190" fill="url(#gcase-${id})"/>
     <circle cx="${C}" cy="${C}" r="190" fill="none" stroke="#ffffff" stroke-opacity=".55" stroke-width="1"/>
     <circle cx="${C}" cy="${C}" r="186" fill="none" stroke="#000" stroke-opacity=".22" stroke-width="2"/>
@@ -542,7 +541,6 @@ function navHTML(page){
 <nav class="nav__links" id="navLinks" aria-label="Primary">
       ${a('index.html','Home','home')}
       ${a('inventory.html','Our Watches','inventory')}
-      ${a('anatomy.html','Anatomy','anatomy')}
       ${a('owner.html','The Owner','owner')}
       ${a('owner.html#contact','Contact','contact')}
     </nav>
@@ -564,7 +562,7 @@ function footerHTML(){
       </div>
       <div class="foot__links">
         <div class="foot__col"><h5>Explore</h5>
-          <a href="index.html">Home</a><a href="inventory.html">Our Watches</a><a href="anatomy.html">Anatomy</a><a href="owner.html">The Owner</a></div>
+          <a href="index.html">Home</a><a href="inventory.html">Our Watches</a><a href="owner.html">The Owner</a></div>
         <div class="foot__col"><h5>Find us</h5>
           <a href="${EBAY}" target="_blank" rel="noopener">eBay Store</a>
           <a href="${IG_BRAND}" target="_blank" rel="noopener">@timescapesllc</a>
