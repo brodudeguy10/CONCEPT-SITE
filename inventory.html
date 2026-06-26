@@ -9,8 +9,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Mulish:ital,wght@0,400;0,500;0,600;0,700;1,500&display=swap" rel="stylesheet">
 <link rel="icon" href="assets/brand/icon-green.svg">
-<link rel="stylesheet" href="styles.css?v=20260624b">
-<script defer src="app.js?v=20260624b"></script>
+<link rel="stylesheet" href="styles.css?v=20260624g">
+<script defer src="app.js?v=20260624g"></script>
 </head>
 <body data-page="inventory">
 
@@ -28,8 +28,17 @@
   <section class="collection" style="padding-top:clamp(48px,6vw,80px)">
     <div class="container">
       <div class="inv-tools" data-reveal>
-        <div class="filters" id="filters"></div>
-        <button class="as-btn" id="openGallery">Open photo gallery ↗</button>
+        <div class="filters" id="filterBar"></div>
+        <div class="inv-aux">
+          <span class="inv-count" id="invCount"></span>
+          <label class="inv-sort" aria-label="Sort watches">
+            <select id="invSort">
+              <option value="new">Newest</option>
+              <option value="az">Brand A–Z</option>
+            </select>
+          </label>
+          <button class="as-btn" id="openGallery">Open photo gallery ↗</button>
+        </div>
       </div>
       <div class="cards cards--3" id="inventoryGrid"></div>
     </div>

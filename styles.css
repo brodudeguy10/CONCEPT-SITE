@@ -244,6 +244,21 @@ footer{padding:72px 0 44px;border-top:1px solid var(--line-2);background:#1d1d1c
 .filter:hover{border-color:var(--gold);color:var(--gold)}
 .filter.active{background:var(--ink);color:#20211d;border-color:var(--ink)}
 .card.hide{display:none}
+#inventoryGrid{transition:opacity .2s var(--ease)}
+.filter:disabled{opacity:.26;cursor:default;pointer-events:none;border-color:var(--line);color:var(--muted)}
+.filter-div{flex:0 0 auto;align-self:center;width:1px;height:18px;background:var(--line-2);margin:0 6px}
+.inv-aux{display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.inv-count{font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--muted);white-space:nowrap}
+.inv-sort{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+.inv-sort select{font-family:var(--mono);font-size:11px;letter-spacing:.03em;text-transform:none;color:var(--ink-soft);background:transparent;
+  border:1px solid var(--line);border-radius:30px;padding:7px 30px 7px 13px;cursor:pointer;-webkit-appearance:none;appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23b6a86a' stroke-width='1.4'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 12px center}
+.inv-sort select:hover{border-color:var(--gold)}
+.inv-sort option{background:var(--bg-2);color:var(--ink)}
+.inv-empty{grid-column:1/-1;text-align:center;padding:54px 0;color:var(--muted);font-family:var(--mono);font-size:12px;letter-spacing:.05em}
+.inv-empty button{background:none;border:none;color:var(--gold);font:inherit;cursor:pointer;text-decoration:underline;margin-left:8px;letter-spacing:.05em}
+@media(max-width:600px){ .inv-aux{width:100%;justify-content:flex-start} .filter-div{display:none} }
 
 /* ============ SPIN VIEWER (signature interaction) ============ */
 .spin{position:relative;width:100%;aspect-ratio:1/1;border-radius:8px;overflow:hidden;
@@ -283,23 +298,36 @@ footer{padding:72px 0 44px;border-top:1px solid var(--line-2);background:#1d1d1c
 .detail__back{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);
   display:inline-flex;gap:.6em;transition:color .3s;margin-bottom:34px}
 .detail__back:hover{color:var(--gold)}
-.detail__grid{display:grid;grid-template-columns:1.08fr .92fr;gap:clamp(40px,5vw,80px);align-items:start}
-.detail__spin{position:relative}
+.detail__grid{display:grid;grid-template-columns:1.08fr .92fr;gap:clamp(40px,5vw,80px);align-items:start;grid-template-areas:"spin info" "gallery info"}
+.detail__spin{position:relative;grid-area:spin}
 .detail__spin .spin{box-shadow:0 50px 90px rgba(0,0,0,.5)}
-.detail__info{padding-top:8px}
+.detail__info{padding-top:8px;grid-area:info}
 .detail__brand{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
 .detail__name{font-family:var(--serif);font-size:clamp(34px,4.4vw,52px);font-weight:500;line-height:1.05;letter-spacing:-.01em;margin:14px 0 0}
 .detail__spec-line{font-size:15px;color:var(--ink-soft);margin-top:14px;max-width:26em;line-height:1.7}
-.specs{margin:34px 0;border-top:1px solid var(--line-2)}
+.specs{margin:34px 0 0;border-top:1px solid var(--line-2)}
 .specs div{display:flex;justify-content:space-between;gap:20px;padding:14px 0;border-bottom:1px solid var(--line-2)}
 .specs dt{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
 .specs dd{font-size:14px;color:var(--ink);text-align:right}
 .specs dd.placeholder{color:var(--ink-soft)}
 .specs dd .ph{display:block;font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-top:3px}
+.specs--cont{margin:0;border-top:none}
+.specs-toggle{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;background:none;border:none;
+  border-bottom:1px solid var(--line-2);cursor:pointer;padding:14px 0;font-family:var(--mono);font-size:10.5px;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--gold);transition:color .25s}
+.specs-toggle:hover{color:var(--gold-bright)}
+.specs-toggle__chev{font-size:12px;transition:transform .4s var(--ease)}
+.specs-toggle.open .specs-toggle__chev{transform:rotate(180deg)}
+.specs-more{max-height:0;overflow:hidden;transition:max-height .45s var(--ease)}
+@media(prefers-reduced-motion:reduce){ .specs-more,.specs-toggle__chev{transition:none} }
 .detail__cta{display:flex;gap:14px;flex-wrap:wrap;margin-top:30px}
-.detail__gallery{margin-top:clamp(48px,6vw,80px)}
-.gallery-strip{display:flex;gap:12px;overflow-x:auto;padding-bottom:8px;scrollbar-width:thin}
-.gallery-strip img{width:118px;height:118px;flex:0 0 auto;object-fit:cover;border-radius:4px;cursor:pointer;
+.detail__gallery{grid-area:gallery;margin-top:clamp(26px,3vw,40px)}
+.gallery-strip{display:flex;gap:10px;overflow-x:auto;padding-bottom:10px;scrollbar-width:thin;scrollbar-color:var(--line-2) transparent}
+.gallery-strip::-webkit-scrollbar{height:6px}
+.gallery-strip::-webkit-scrollbar-track{background:transparent}
+.gallery-strip::-webkit-scrollbar-thumb{background:var(--line-2);border-radius:6px}
+.gallery-strip:hover::-webkit-scrollbar-thumb{background:var(--gold-deep)}
+.gallery-strip img{width:100px;height:100px;flex:0 0 auto;object-fit:cover;border-radius:4px;cursor:pointer;
   opacity:.78;transition:opacity .4s,transform .5s var(--ease)}
 .gallery-strip img:hover{opacity:1;transform:translateY(-3px)}
 .more{padding:var(--section) 0 0}
@@ -451,7 +479,7 @@ footer{padding:72px 0 44px;border-top:1px solid var(--line-2);background:#1d1d1c
   .menu-btn{display:flex}
   .hero__grid{grid-template-columns:1fr;gap:48px}
   .hero__visual{order:-1}
-  .detail__grid{grid-template-columns:1fr;gap:40px}
+  .detail__grid{grid-template-columns:1fr;gap:40px;grid-template-areas:"spin" "info" "gallery"}
   .compare__wrap{grid-template-columns:1fr;gap:30px}
   .owner-bio__grid{grid-template-columns:1fr;gap:40px}
   .closer__grid{grid-template-columns:1fr;gap:40px}

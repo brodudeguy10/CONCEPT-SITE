@@ -665,29 +665,116 @@ function initHome(){
 }
 function initInventory(){
   const grid=$('#inventoryGrid'); if(!grid) return;
-  const ws=ourWatches();
-  grid.innerHTML=ws.map(cardHTML).join(''); observeReveals(grid);
-  const fbar=$('#filters');
-  if(fbar){
-    const brands=[...new Set(ws.map(w=>w.brand))];
-    const chips=[{k:'all',l:'All'},{k:'stock',l:'In stock'},{k:'sold',l:'Sold'}].concat(brands.map(b=>({k:'brand:'+b,l:b})));
-    fbar.innerHTML=chips.map((c,i)=>`<button class="filter${i===0?' active':''}" data-k="${c.k}">${c.l}</button>`).join('');
-    $$('.filter',fbar).forEach(btn=>btn.addEventListener('click',()=>{
-      $$('.filter',fbar).forEach(b=>b.classList.toggle('active',b===btn));
-      const k=btn.dataset.k;
-      const applyHides=()=>{ $$('.card',grid).forEach(card=>{ let show=true;
-        if(k==='stock') show=card.dataset.status==='stock';
-        else if(k==='sold') show=card.dataset.status==='sold';
-        else if(k.indexOf('brand:')===0) show=card.dataset.brand===k.slice(6);
-        card.classList.toggle('hide',!show); }); };
-      if(REDUCE){ applyHides(); return; }
-      grid.style.opacity='0';
-      setTimeout(()=>{ applyHides(); grid.style.opacity='1'; }, 220);
-    }));
+  const all=ourWatches();
+  const brands=[...new Set(all.map(w=>w.brand))];
+
+  // is anything available for this status + brand pair?
+  const has=(status,brand)=>all.some(w=>
+    (status==='all' || (status==='stock'&&!w.sold) || (status==='sold'&&w.sold)) &&
+    (brand==='all'  || w.brand===brand));
+
+  // shareable state from URL (?status=&brand=&sort=)
+  const q=new URLSearchParams(location.search);
+  const brandMatch=brands.find(b=>b.toLowerCase()===(q.get('brand')||'').toLowerCase());
+  const state={
+    status:['stock','sold'].includes(q.get('status'))?q.get('status'):'all',
+    brand: brandMatch||'all',
+    sort:  ['az'].includes(q.get('sort'))?q.get('sort'):'new'
+  };
+  // never start on an impossible combo (e.g. a deep-linked sold-only brand under In stock)
+  if(state.brand!=='all' && !has(state.status,state.brand)) state.brand='all';
+
+  const bar=$('#filterBar'), sortSel=$('#invSort'), countEl=$('#invCount');
+  if(bar){
+    const pill=(type,k,l)=>`<button class="filter" data-type="${type}" data-k="${k}">${l}</button>`;
+    bar.innerHTML = pill('reset','all','All')
+      + pill('status','stock','In stock') + pill('status','sold','Sold')
+      + `<span class="filter-div" aria-hidden="true"></span>`
+      + brands.map(b=>pill('brand',b,b)).join('');
   }
+  if(sortSel) sortSel.value=state.sort;
+
+  const filtered=()=>all.filter(w=>{
+      const okS = state.status==='all' || (state.status==='stock'&&!w.sold) || (state.status==='sold'&&w.sold);
+      const okB = state.brand==='all'  || w.brand===state.brand;
+      return okS && okB;
+    }).sort((a,b)=>{
+      if(!!a.sold!==!!b.sold) return a.sold?1:-1;                 // in-stock always before sold
+      if(state.sort==='az') return (a.brand+' '+a.name).localeCompare(b.brand+' '+b.name);
+      return all.indexOf(a)-all.indexOf(b);                      // newest = curated order
+    });
+
+  const syncBar=()=>{
+    if(!bar) return;
+    $$('.filter',bar).forEach(b=>{
+      const t=b.dataset.type, k=b.dataset.k; let active=false, off=false;
+      if(t==='reset')        active = state.status==='all' && state.brand==='all';
+      else if(t==='status'){ active = state.status===k; off = !has(k,state.brand); }
+      else if(t==='brand'){  active = state.brand===k;  off = !has(state.status,k); }
+      b.classList.toggle('active',active);
+      b.disabled = off;                 // greyed + unclickable when the combo is empty
+    });
+  };
+  const syncURL=()=>{
+    const p=new URLSearchParams();
+    if(state.status!=='all') p.set('status',state.status);
+    if(state.brand!=='all')  p.set('brand',state.brand);
+    if(state.sort!=='new')   p.set('sort',state.sort);
+    const qs=p.toString();
+    history.replaceState(null,'',location.pathname+(qs?'?'+qs:'')+location.hash);
+  };
+  const paint=(initial)=>{
+    const list=filtered();
+    if(countEl) countEl.textContent = list.length===all.length ? all.length+' watches' : list.length+' of '+all.length;
+    if(!list.length){
+      grid.innerHTML='<p class="inv-empty">Nothing matches that combo.<button type="button" id="invClear">Clear filters</button></p>';
+      const clr=$('#invClear'); if(clr) clr.addEventListener('click',()=>{ state.status='all'; state.brand='all'; apply(); });
+      return;
+    }
+    grid.innerHTML=list.map(cardHTML).join('');
+    if(initial) observeReveals(grid);
+    else $$('.card',grid).forEach(c=>c.classList.add('in'));
+  };
+  function apply(){
+    syncBar(); syncURL();
+    if(REDUCE){ paint(false); return; }
+    grid.style.opacity='0';
+    setTimeout(()=>{ paint(false); grid.style.opacity='1'; },200);
+  }
+
+  if(bar) bar.addEventListener('click',e=>{
+    const b=e.target.closest('.filter'); if(!b || b.disabled) return;
+    const t=b.dataset.type, k=b.dataset.k;
+    if(t==='reset'){ state.status='all'; state.brand='all'; }
+    else if(t==='status'){ state.status = state.status===k?'all':k; if(state.brand!=='all' && !has(state.status,state.brand)) state.brand='all'; }
+    else if(t==='brand'){  state.brand  = state.brand===k?'all':k;  if(state.status!=='all' && !has(state.status,state.brand)) state.status='all'; }
+    apply();
+  });
+  if(sortSel) sortSel.addEventListener('change',()=>{ state.sort=sortSel.value; apply(); });
+
+  syncBar(); syncURL(); paint(true);
+
   const cmp=$('#cmp'); if(cmp) initComparison(cmp);
   const galBtn=$('#openGallery'); if(galBtn) galBtn.addEventListener('click',()=>lbOpen('all'));
 }
+// Per-watch reference specs. Real, sourced data — empty fields are intentionally omitted, never guessed.
+// Unit-specific fields (box & papers, year, condition) are yours to set per piece.
+const SPECS = {
+  speedy:{movement:'Automatic chronograph (column-wheel)',caliber:'Omega Co-Axial 3330',power:'52 hours',case:'Stainless steel',size:'38 mm',water:'100 m',crystal:'Sapphire, anti-reflective both sides',bezel:'Blue ceramic, white enamel tachymeter',dial:'Varnished white, frosted blue Milano Cortina transfer',strap:'Stainless steel bracelet',functions:'Chronograph · Date',cert:'COSC chronometer'},
+  premier:{movement:'Automatic chronograph',caliber:'Breitling B01 (in-house)',power:'70 hours',case:'Stainless steel',size:'42 mm',water:'100 m',crystal:'Sapphire',bezel:'Polished steel, fixed',dial:'Black',functions:'Chronograph · Date',cert:'COSC chronometer',bp:'Box & papers (full set)'},
+  avi:{movement:'Automatic chronograph with GMT',caliber:'Breitling B04 (in-house)',power:'70 hours',case:'Stainless steel',size:'46 mm',water:'100 m',crystal:'Sapphire',bezel:'Bidirectional 24-hour',dial:'Blue',functions:'Chronograph · GMT · Date',cert:'COSC chronometer'},
+  dj41:{movement:'Automatic',caliber:'Rolex 3235',power:'70 hours',case:'Oystersteel & 18k white gold',size:'41 mm',water:'100 m',crystal:'Sapphire, Cyclops date lens',bezel:'Fluted 18k white gold',dial:'Blue, diamond hour markers',functions:'Date',cert:'Superlative Chronometer (COSC + Rolex)'},
+  br03:{movement:'Automatic',caliber:'BR-CAL.302-1',power:'54 hours',case:'Matte black ceramic',size:'42 mm',water:'300 m',crystal:'Sapphire, anti-reflective',bezel:'Unidirectional 60-min, black ceramic',dial:'Full pale-blue Super-LumiNova',strap:'Black rubber + synthetic fabric',functions:'Hours · Minutes · Seconds · Date'},
+  gmt:{movement:'Automatic',caliber:'Rolex 3285',power:'70 hours',case:'18k Everose gold',size:'40 mm',water:'100 m',crystal:'Sapphire, Cyclops date lens',bezel:'Cerachrom 24-hour, brown & black',dial:'Black',strap:'Oyster bracelet',functions:'GMT · Date',cert:'Superlative Chronometer (COSC + Rolex)'},
+  sea:{movement:'Automatic',power:'55 hours',size:'42 mm',water:'300 m',crystal:'Sapphire, anti-reflective',bezel:'Unidirectional, ceramic diving scale',dial:'Green',functions:'Date',cert:'METAS Master Chronometer'},
+  p904b:{movement:'Automatic',caliber:'Panerai P.900',power:'72 hours (3 days)',case:'Stainless steel',size:'42 mm',water:'30 m',crystal:'Sapphire',bezel:'Fixed steel',dial:'Anthracite sunburst',strap:'Suede leather',functions:'Small seconds · Date'},
+  p904t:{movement:'Automatic',caliber:'Panerai P.900',power:'72 hours (3 days)',case:'Stainless steel',size:'42 mm',water:'30 m',crystal:'Sapphire',bezel:'Fixed steel',dial:'Anthracite sunburst',strap:'Textile',functions:'Small seconds · Date'},
+  p1218:{movement:'Automatic chronograph',caliber:'Panerai P.9200',power:'42 hours',case:'Stainless steel',size:'44 mm',water:'100 m',crystal:'Sapphire, anti-reflective',bezel:'Polished steel, tachymeter rehaut',dial:'White, sandwich',strap:'Blue rubber',functions:'Chronograph · Small seconds'},
+  navi:{movement:'Automatic chronograph',caliber:'Breitling B01 (in-house)',power:'70 hours',case:'Stainless steel & 18k red gold',size:'43 mm',water:'30 m',crystal:'Sapphire',bezel:'Bidirectional slide-rule',functions:'Chronograph · Date',cert:'COSC chronometer'},
+  '007':{movement:'Automatic',caliber:'Omega Co-Axial Master Chronometer 8806',power:'55 hours',case:'Grade 2 titanium',size:'42 mm',water:'300 m',crystal:'Sapphire, anti-reflective',bezel:'Unidirectional, brown aluminium diving scale',dial:'Brown, broad-arrow military style',strap:'Titanium mesh + NATO',functions:'Central seconds (no date)',cert:'METAS Master Chronometer'}
+};
+const SPEC_ORDER = [['movement','Movement'],['caliber','Caliber'],['power','Power reserve'],['case','Case'],['size','Diameter'],['water','Water resistance'],['crystal','Crystal'],['bezel','Bezel'],['dial','Dial'],['strap','Bracelet / Strap'],['functions','Functions'],['cert','Certification'],['bp','Box & papers']];
+
 function initWatch(){
   const root=$('#watchRoot'); if(!root) return;
   const id=new URLSearchParams(location.search).get('id');
@@ -700,6 +787,13 @@ function initWatch(){
   const cta = w.sold
     ? `<a class="btn btn--ghost" href="inventory.html">See what's in stock →</a><a class="btn btn--ghost" href="${contactHref}">Ask about a similar piece</a><button class="btn btn--ghost" id="openGallery">View gallery</button>`
     : `<a class="btn btn--gold" href="${w.ebay}" target="_blank" rel="noopener">See it on eBay ↗</a><a class="btn btn--ghost" href="${contactHref}">Contact about this watch</a><button class="btn btn--ghost" id="openGallery">View gallery</button>`;
+  const S = SPECS[w.id] || {};
+  const BASIC = {movement:1,case:1,size:1,water:1};
+  let basicRows = `<div><dt>Brand</dt><dd>${w.brand}</dd></div><div><dt>Reference</dt><dd>${w.ref}</dd></div>`, moreRows='';
+  SPEC_ORDER.forEach(function(p){ if(!S[p[0]]) return; const row=`<div><dt>${p[1]}</dt><dd>${S[p[0]]}</dd></div>`; if(BASIC[p[0]]) basicRows+=row; else moreRows+=row; });
+  basicRows += `<div><dt>Availability</dt>${availDD}</div>`;
+  const specBlock = `<dl class="specs">${basicRows}</dl>`
+    + (moreRows ? `<button class="specs-toggle" id="specsToggle" type="button" aria-expanded="false" aria-controls="specsMore"><span class="specs-toggle__label">Full specification</span><span class="specs-toggle__chev" aria-hidden="true">↓</span></button><div class="specs-more" id="specsMore"><dl class="specs specs--cont">${moreRows}</dl></div>` : '');
   root.innerHTML=`
   <section class="detail${w.sold?' detail--sold':''}"><div class="container">
     <a class="detail__back" href="inventory.html">← Back to all watches</a>
@@ -710,18 +804,13 @@ function initWatch(){
         <h1 class="detail__name">${w.name}</h1>
         ${w.sold?'<p class="sold-note">This one\'s already gone, but we keep it up. What\'s actually available is in the lineup below.</p>':''}
         <p class="detail__spec-line">${w.spec}. Grab it and drag to spin it around, or hover to zoom right in.</p>
-        <dl class="specs">
-          <div><dt>Brand</dt><dd>${w.brand}</dd></div>
-          <div><dt>Reference</dt><dd>${w.ref}</dd></div>
-          <div><dt>Specification</dt><dd>${w.spec}</dd></div>
-          <div><dt>Availability</dt>${availDD}</div>
-        </dl>
+        ${specBlock}
         <div class="detail__cta">${cta}</div>
       </div>
-    </div>
-    <div class="detail__gallery" data-reveal>
-      <span class="eyebrow">Every angle</span>
-      <div class="gallery-strip" id="galleryStrip" style="margin-top:22px"></div>
+      <div class="detail__gallery" data-reveal data-delay="2">
+        <span class="eyebrow">Every angle</span>
+        <div class="gallery-strip" id="galleryStrip" style="margin-top:16px"></div>
+      </div>
     </div>
   </div></section>
   <section class="more"><div class="container">
@@ -738,6 +827,23 @@ function initWatch(){
   strip.innerHTML=Array.from({length:w.frames},(_,i)=>`<img src="${framePath(w,i+1)}" data-src="${framePath(w,i+1)}" alt="${w.brand} ${w.name}, angle ${i+1}" loading="lazy">`).join('');
   $$('img',strip).forEach(im=>im.addEventListener('click',()=>lbOpen(w.folder,im.dataset.src)));
   $('#openGallery').addEventListener('click',()=>lbOpen(w.folder));
+
+  // collapsible spec sheet
+  const moreWrap=$('#specsMore'), sToggle=$('#specsToggle');
+  if(moreWrap && sToggle){
+    const sLabel=$('.specs-toggle__label',sToggle);
+    sToggle.addEventListener('click',function(){
+      const willOpen=!moreWrap.classList.contains('open');
+      sToggle.classList.toggle('open',willOpen);
+      sToggle.setAttribute('aria-expanded',willOpen?'true':'false');
+      if(sLabel) sLabel.textContent=willOpen?'Show less':'Full specification';
+      if(REDUCE){ moreWrap.classList.toggle('open',willOpen); moreWrap.style.maxHeight=willOpen?'none':'0px'; return; }
+      if(willOpen){ moreWrap.classList.add('open'); moreWrap.style.maxHeight=moreWrap.scrollHeight+'px'; }
+      else { moreWrap.style.maxHeight=moreWrap.scrollHeight+'px'; requestAnimationFrame(function(){ moreWrap.classList.remove('open'); moreWrap.style.maxHeight='0px'; }); }
+    });
+    moreWrap.addEventListener('transitionend',function(e){ if(e.propertyName==='max-height' && moreWrap.classList.contains('open')) moreWrap.style.maxHeight='none'; });
+  }
+
   observeReveals(root);
 }
 function initOwner(){
