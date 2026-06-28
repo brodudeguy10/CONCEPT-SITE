@@ -775,6 +775,53 @@ const SPECS = {
 };
 const SPEC_ORDER = [['movement','Movement'],['caliber','Caliber'],['power','Power reserve'],['case','Case'],['size','Diameter'],['water','Water resistance'],['crystal','Crystal'],['bezel','Bezel'],['dial','Dial'],['strap','Bracelet / Strap'],['functions','Functions'],['cert','Certification'],['bp','Box & papers']];
 
+// Real case geometry (mm), sourced per reference. Powers the to-scale "how it wears" drawing.
+const DIMS = {
+  speedy:{shape:'round',dia:38,l2l:45.2,thick:14.75,lug:20},
+  premier:{shape:'round',dia:42,l2l:50,thick:13.6,lug:22},
+  avi:{shape:'round',dia:46,l2l:51.5,thick:15.9,lug:24},
+  dj41:{shape:'round',dia:41,l2l:47.6,thick:12,lug:21},
+  br03:{shape:'square',dia:42,l2l:42,thick:12,lug:24},
+  gmt:{shape:'round',dia:40,l2l:47.5,thick:12,lug:20},
+  sea:{shape:'round',dia:42,l2l:48.5,thick:13.5,lug:20},
+  p904b:{shape:'cushion',dia:42,l2l:49,thick:10.5,lug:22},
+  p904t:{shape:'cushion',dia:42,l2l:49,thick:10.5,lug:22},
+  p1218:{shape:'cushion',dia:44,l2l:53,thick:15.7,lug:24},
+  navi:{shape:'round',dia:43,l2l:50,thick:13.6,lug:22},
+  '007':{shape:'round',dia:42,l2l:48.5,thick:13.5,lug:20}
+};
+function wearsViz(w){
+  const d=DIMS[w.id]; if(!d) return '';
+  const S=4, cx=158, cy=152, px=430;
+  const half=d.dia*S/2, l2lH=d.l2l*S/2, slabH=d.thick*S, slabW=d.dia*S;
+  const tick=(x,y)=>`<line x1="${x-4}" y1="${y}" x2="${x+4}" y2="${y}" class="wv-dim"/>`;
+  let shape;
+  if(d.shape==='square') shape=`<rect x="${cx-half}" y="${cy-half}" width="${slabW}" height="${slabW}" rx="9" class="wv-case"/>`;
+  else if(d.shape==='cushion') shape=`<rect x="${cx-half}" y="${cy-half}" width="${slabW}" height="${slabW}" rx="${(half*0.5).toFixed(1)}" class="wv-case"/>`;
+  else shape=`<circle cx="${cx}" cy="${cy}" r="${half}" class="wv-case"/>`;
+  let env='';
+  if(d.shape!=='square' && d.l2l>d.dia+1){
+    env=`<rect x="${cx-half}" y="${cy-l2lH}" width="${slabW}" height="${d.l2l*S}" rx="${(half*0.66).toFixed(1)}" class="wv-env"/>`;
+    const off=half*0.46, lw=Math.max(d.lug*S*0.3,8);
+    [-1,1].forEach(sx=>[-1,1].forEach(sy=>{
+      const x=(cx+sx*off-lw/2).toFixed(1), y=(sy<0?cy-l2lH:cy+half-6).toFixed(1);
+      env+=`<rect x="${x}" y="${y}" width="${lw.toFixed(1)}" height="${(l2lH-half+6).toFixed(1)}" rx="3" class="wv-lug"/>`;
+    }));
+  }
+  const dlx=52;
+  const l2lDim = d.shape==='square' ? '' :
+    `<line x1="${dlx}" y1="${(cy-l2lH).toFixed(1)}" x2="${dlx}" y2="${(cy+l2lH).toFixed(1)}" class="wv-dim"/>${tick(dlx,cy-l2lH)}${tick(dlx,cy+l2lH)}<text x="${dlx-9}" y="${cy}" transform="rotate(-90 ${dlx-9} ${cy})" text-anchor="middle" class="wv-num">${d.l2l} lug-to-lug</text>`;
+  const diaTxt = d.shape==='square'?`${d.dia} × ${d.dia} mm square`:d.shape==='cushion'?`${d.dia} mm cushion`:`&#216; ${d.dia} mm`;
+  const diaLabel=`<text x="${cx}" y="${(cy+l2lH+24).toFixed(1)}" text-anchor="middle" class="wv-num">${diaTxt}</text>`;
+  const slabX=px-slabW/2, slabY=cy-slabH/2, rx=Math.min(slabH/2,9);
+  const prof=`<rect x="${slabX.toFixed(1)}" y="${slabY.toFixed(1)}" width="${slabW}" height="${slabH}" rx="${rx.toFixed(1)}" class="wv-case"/><path d="M${(slabX+7).toFixed(1)} ${slabY.toFixed(1)} Q${px} ${(slabY-7).toFixed(1)} ${(slabX+slabW-7).toFixed(1)} ${slabY.toFixed(1)}" class="wv-crystal"/>`;
+  const tdx=slabX-16;
+  const thickDim=`<line x1="${tdx.toFixed(1)}" y1="${slabY.toFixed(1)}" x2="${tdx.toFixed(1)}" y2="${(slabY+slabH).toFixed(1)}" class="wv-dim"/>${tick(tdx,slabY)}${tick(tdx,slabY+slabH)}<text x="${(tdx-7).toFixed(1)}" y="${(cy+3).toFixed(1)}" text-anchor="end" class="wv-num">${d.thick} mm thick</text>`;
+  const caps=`<text x="${cx}" y="20" text-anchor="middle" class="wv-cap">FOOTPRINT</text><text x="${px}" y="20" text-anchor="middle" class="wv-cap">PROFILE</text>`;
+  const sb=`<line x1="270" y1="288" x2="310" y2="288" class="wv-dim"/>${tick(270,288)}${tick(310,288)}<text x="290" y="282" text-anchor="middle" class="wv-cap">10 MM &#183; TO SCALE</text>`;
+  return `<div class="wears"><div class="wears__head"><span class="wears__t">How it wears</span><span class="wears__sub">Drawn to scale. Lug-to-lug and thickness decide wrist presence more than diameter does.</span></div><svg viewBox="0 0 560 300" class="wears__svg" role="img" aria-label="To-scale case: ${d.dia}mm wide, ${d.l2l}mm lug-to-lug, ${d.thick}mm thick">${caps}${env}${shape}${l2lDim}${diaLabel}${prof}${thickDim}${sb}</svg></div>`;
+}
+
 function initWatch(){
   const root=$('#watchRoot'); if(!root) return;
   const id=new URLSearchParams(location.search).get('id');
@@ -792,8 +839,9 @@ function initWatch(){
   let basicRows = `<div><dt>Brand</dt><dd>${w.brand}</dd></div><div><dt>Reference</dt><dd>${w.ref}</dd></div>`, moreRows='';
   SPEC_ORDER.forEach(function(p){ if(!S[p[0]]) return; const row=`<div><dt>${p[1]}</dt><dd>${S[p[0]]}</dd></div>`; if(BASIC[p[0]]) basicRows+=row; else moreRows+=row; });
   basicRows += `<div><dt>Availability</dt>${availDD}</div>`;
+  const wv = wearsViz(w);
   const specBlock = `<dl class="specs">${basicRows}</dl>`
-    + (moreRows ? `<button class="specs-toggle" id="specsToggle" type="button" aria-expanded="false" aria-controls="specsMore"><span class="specs-toggle__label">Full specification</span><span class="specs-toggle__chev" aria-hidden="true">↓</span></button><div class="specs-more" id="specsMore"><dl class="specs specs--cont">${moreRows}</dl></div>` : '');
+    + ((moreRows || wv) ? `<button class="specs-toggle" id="specsToggle" type="button" aria-expanded="false" aria-controls="specsMore"><span class="specs-toggle__label">Full specification</span><span class="specs-toggle__chev" aria-hidden="true">↓</span></button><div class="specs-more" id="specsMore">${moreRows?`<dl class="specs specs--cont">${moreRows}</dl>`:''}${wv}</div>` : '');
   root.innerHTML=`
   <section class="detail${w.sold?' detail--sold':''}"><div class="container">
     <a class="detail__back" href="inventory.html">← Back to all watches</a>
